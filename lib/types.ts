@@ -25,6 +25,11 @@ export interface Organization {
   id: string
   name: string
   owner_id: string
+  geofence_enabled: boolean
+  geofence_lat: number | null
+  geofence_lng: number | null
+  geofence_radius_m: number
+  geofence_label: string | null
   created_at: string
   updated_at: string
 }
@@ -120,6 +125,12 @@ export interface TimeEntry {
   clock_out_photo_path: string | null
   clock_in_face_score: number | null
   clock_out_face_score: number | null
+  clock_in_lat: number | null
+  clock_in_lng: number | null
+  clock_in_accuracy_m: number | null
+  clock_out_lat: number | null
+  clock_out_lng: number | null
+  clock_out_accuracy_m: number | null
   created_at: string
   updated_at: string
 }

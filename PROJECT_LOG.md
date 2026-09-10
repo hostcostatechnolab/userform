@@ -25,6 +25,7 @@ paste and run each file:
 6. [`supabase/migrations/0006_invitation_preview.sql`](supabase/migrations/0006_invitation_preview.sql) — `invitation_preview(token)` RPC + invited-email read policy so the invite link works for logged-out / non-manager users **(run this)**
 7. [`supabase/migrations/0007_admin_delete_user.sql`](supabase/migrations/0007_admin_delete_user.sql) — `admin_delete_user(id)` RPC (super admin permanently deletes an account; blocked if they own an org) **(run this)**
 8. [`supabase/migrations/0008_fix_profiles_cascade.sql`](supabase/migrations/0008_fix_profiles_cascade.sql) — repair `profiles_id_fkey` to `ON DELETE CASCADE` (the old table pre-dated 0001) so account deletion actually works **(run this)**
+9. [`supabase/migrations/0009_geofence.sql`](supabase/migrations/0009_geofence.sql) — `organizations.geofence_*` columns + per-punch `clock_in/out_lat/lng/accuracy_m` on `time_entries` **(run this)**
 
 Grant yourself super admin after 0005:
 `update public.profiles set is_superadmin = true where email = 'you@example.com';`
@@ -49,6 +50,34 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable__...
 ---
 
 ## Timeline
+
+### 2026-09-10 — Session 4 (cont.) — Geofenced clock in / out
+
+Decisions: **one geofence per org**, **hard block**, **Leaflet + OpenStreetMap**
+map picker. Web clock only (not the desktop tracker).
+
+- SQL `0009_geofence.sql`: `organizations.geofence_enabled / _lat / _lng /
+  _radius_m (default 150, check 20–5000) / _label`; `time_entries` gains
+  `clock_in/out_lat / _lng / _accuracy_m`.
+- `lib/geo.ts` — `haversineMeters`, `formatMeters`, `checkGeofence(fence, lat,
+  lng, accuracy)` (adds min(accuracy,200) m slack). Used by both the client
+  (fast feedback) and the server actions (authoritative).
+- `lib/actions/time.ts` — `clockInAction` / `clockOutAction` take optional
+  `lat/lng/accuracy`; `geofenceError()` reads `ctx.membership.org` and rejects
+  when enabled + outside radius (or coords missing). Coords stored on the row.
+- `lib/actions/org.ts` — `updateGeofenceAction` (managers).
+- `lib/leaflet.ts` — one-time CDN loader (cdnjs 1.9.4, CSS + JS, marker image
+  URLs pointed at the CDN). `components/settings/GeofenceMap.tsx` — click / drag
+  marker, radius circle synced to a slider.
+- New settings area: `app/(app)/settings/layout.tsx` + `SettingsTabs` (Profile
+  always, Workspace for managers); `/settings/workspace` → `WorkspaceForm`
+  (enable toggle, map, radius slider 20–2000, label, "Use my location").
+  `/settings/profile` lost its own `<h1>`.
+- `ClockCard` — new `geofence` prop; a `startPunch()` step runs
+  `navigator.geolocation.getCurrentPosition` before the face dialog when the
+  fence is on, blocks on denial / outside radius, and threads the coords into
+  the action. Shows "You must be at {label} ({radius} m)".
+- `tsc` + `next build` clean (24 routes).
 
 ### 2026-09-10 — Session 4 (cont.) — Super Admin: permanent account delete
 
@@ -348,7 +377,9 @@ app/admin/  (own layout — requireSuperadmin, AdminNav)
 app/deactivated/page.tsx   public; where the proxy sends disabled accounts
     team/page.tsx            requireManager; TeamManager
     reports/page.tsx         requireManager; ?from&to&groupBy; ReportsView (Suspense)
+    settings/layout.tsx      SettingsTabs (Profile always, Workspace for managers)
     settings/profile/page.tsx
+    settings/workspace/page.tsx  requireManager; WorkspaceForm (geofence: map + radius + label)
   onboarding/
     page.tsx                 CreateOrgForm (redirects out if already in an org)
     invite/[token]/page.tsx  AcceptInvite
@@ -357,6 +388,8 @@ lib/
   constants.ts               APP_NAME, ORG_ROLES, MANAGER_ROLES, NAV_ITEMS, PROJECT_COLORS, ACTIVE_ORG_COOKIE
   types.ts                   Profile, Organization, OrgMember(WithProfile), Invitation, Project, TimeEntry(Detailed), Membership
   time.ts                    entryDurationMs, formatDuration/Clock, toDecimalHours, startOfWeek/endOfWeek/weekDays/addWeeks, localDayKey, toDatetimeLocalValue
+  geo.ts                     haversineMeters, formatMeters, checkGeofence (client + server)
+  leaflet.ts                 one-time CDN loader for Leaflet ('use client')
   utils.ts                   cn(), initials()
   action-result.ts           ActionResult<T>, ok(), fail(), toMessage()  (client-safe)
   face/
@@ -406,7 +439,7 @@ components/
   projects/   ProjectsManager + ProjectCard (per-project task list), ProjectFormDialog
   team/       TeamManager
   reports/    ReportsView
-  settings/   ProfileForm
+  settings/   ProfileForm, SettingsTabs, WorkspaceForm, GeofenceMap
   onboarding/ CreateOrgForm, AcceptInvite
 
 desktop/  (Python 3.10+, CustomTkinter — separate app, not built/linted here)
@@ -454,6 +487,11 @@ that day's clock records · Present/Absent/Off (no schedule config).
 enrollment (`/settings/profile`) + mandatory face match on every clock in/out ·
 selfies stored in a private Storage bucket · manager views show in/out thumbnails ·
 match trusted client-side (see Known limitation above).
+
+**Done — Geofenced clock (Session 4):** one location per org
+(`/settings/workspace`, Leaflet map + radius); web clock in/out **hard-blocked**
+outside the circle or when location is denied; coords stored per punch; checked
+client-side for UX and server-side (authoritative) in the clock actions.
 
 **Done — Super Admin (Session 4):** platform role (`profiles.is_superadmin`, set
 via SQL only) with cross-org read of every workspace's data; `/admin` area

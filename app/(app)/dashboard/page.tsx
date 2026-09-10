@@ -60,6 +60,13 @@ export default async function DashboardPage() {
         faceDescriptor={faceDescriptor}
         userId={user.id}
         orgId={org.id}
+        geofence={{
+          enabled: org.geofence_enabled,
+          lat: org.geofence_lat,
+          lng: org.geofence_lng,
+          radiusM: org.geofence_radius_m,
+          label: org.geofence_label,
+        }}
       />
 
       <div className="grid gap-4 sm:grid-cols-2">

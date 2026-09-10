@@ -28,10 +28,6 @@ export default async function ProfileSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
-        Profile
-      </h1>
-
       <Card>
         <CardContent>
           <ProfileForm profile={profile ?? null} email={user.email ?? null} />

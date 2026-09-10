@@ -35,6 +35,10 @@ paste and **Run** each file, in order:
 8. [`migrations/0008_fix_profiles_cascade.sql`](migrations/0008_fix_profiles_cascade.sql) —
    repairs `profiles_id_fkey` to `ON DELETE CASCADE` (the table pre-dated 0001)
    so deleting an `auth.users` row succeeds
+9. [`migrations/0009_geofence.sql`](migrations/0009_geofence.sql) —
+   `organizations.geofence_*` (one work location + radius, set at
+   `/settings/workspace`) and per-punch coordinates on `time_entries`; the web
+   clock hard-blocks outside the circle
 
 Each script is idempotent-ish (`if not exists` / `create or replace` /
 `drop policy if exists` / `add column if not exists`), so re-running is safe.

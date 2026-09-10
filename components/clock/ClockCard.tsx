@@ -1,11 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LogIn, LogOut, ChevronDown, ScanFace } from 'lucide-react'
+import {
+  LogIn,
+  LogOut,
+  ChevronDown,
+  ScanFace,
+  MapPin,
+  Loader2,
+} from 'lucide-react'
 import { clockInAction, clockOutAction } from '@/lib/actions/time'
 import { uploadSelfie } from '@/lib/face/upload'
+import { checkGeofence } from '@/lib/geo'
 import { useAction } from '@/components/ui/use-action'
 import { Select, Input } from '@/components/ui/field'
 import { Alert, ColorDot } from '@/components/ui/misc'
@@ -18,18 +26,30 @@ import {
 } from '@/components/face/FaceCaptureDialog'
 import type { Project, TimeEntryDetailed } from '@/lib/types'
 
+interface GeofenceProp {
+  enabled: boolean
+  lat: number | null
+  lng: number | null
+  radiusM: number
+  label: string | null
+}
+
+type Coords = { lat: number; lng: number; accuracy: number } | null
+
 export function ClockCard({
   running,
   projects,
   faceDescriptor,
   userId,
   orgId,
+  geofence,
 }: {
   running: TimeEntryDetailed | null
   projects: Project[]
   faceDescriptor: number[] | null
   userId: string
   orgId: string
+  geofence: GeofenceProp | null
 }) {
   const router = useRouter()
   const { error, setError } = useAction()
@@ -37,16 +57,69 @@ export function ClockCard({
   const [projectId, setProjectId] = useState('')
   const [note, setNote] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [locating, setLocating] = useState(false)
+  const coordsRef = useRef<Coords>(null)
 
   const enrolled = Array.isArray(faceDescriptor) && faceDescriptor.length > 0
+  const geoActive =
+    !!geofence?.enabled && geofence.lat != null && geofence.lng != null
 
-  async function handleCapture({ descriptor, blob, distance }: CaptureResult) {
-    void descriptor
+  function startPunch() {
+    setError(null)
+    coordsRef.current = null
+
+    if (!geoActive) {
+      setDialogOpen(true)
+      return
+    }
+    if (!navigator.geolocation) {
+      setError('This device can’t share its location, which is required here.')
+      return
+    }
+
+    setLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocating(false)
+        const { latitude, longitude, accuracy } = pos.coords
+        const res = checkGeofence(
+          {
+            lat: geofence!.lat!,
+            lng: geofence!.lng!,
+            radiusM: geofence!.radiusM,
+            label: geofence!.label,
+          },
+          latitude,
+          longitude,
+          accuracy
+        )
+        if (!res.ok) {
+          setError(res.reason ?? 'You are outside the allowed area.')
+          return
+        }
+        coordsRef.current = { lat: latitude, lng: longitude, accuracy }
+        setDialogOpen(true)
+      },
+      (err) => {
+        setLocating(false)
+        setError(
+          err.code === err.PERMISSION_DENIED
+            ? 'Location access is required to clock in here. Allow it and try again.'
+            : 'Couldn’t get your location. Move to an open area and try again.'
+        )
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
+    )
+  }
+
+  async function handleCapture({ blob, distance }: CaptureResult) {
+    const coords = coordsRef.current ?? {}
     if (running) {
       const photoPath = await uploadSelfie(blob, { userId, orgId, kind: 'out' })
       const res = await clockOutAction({
         photoPath,
         faceScore: distance ?? 0,
+        ...coords,
       })
       if (res.ok === false) throw new Error(res.error)
     } else {
@@ -56,11 +129,13 @@ export function ClockCard({
         faceScore: distance ?? 0,
         projectId: projectId || null,
         note: note || null,
+        ...coords,
       })
       if (res.ok === false) throw new Error(res.error)
       setNote('')
       setShowDetails(false)
     }
+    coordsRef.current = null
     setDialogOpen(false)
     router.refresh()
   }
@@ -85,6 +160,36 @@ export function ClockCard({
     )
   }
 
+  const punchBtn = (
+    <button
+      onClick={startPunch}
+      disabled={locating}
+      className={cn(
+        'inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-4 text-base font-semibold text-white transition-colors disabled:opacity-70',
+        running
+          ? 'bg-red-600 hover:bg-red-700'
+          : 'bg-emerald-600 hover:bg-emerald-700'
+      )}
+    >
+      {locating ? (
+        <>
+          <Loader2 className="h-5 w-5 animate-spin" />
+          Checking location…
+        </>
+      ) : running ? (
+        <>
+          <LogOut className="h-5 w-5" />
+          I&apos;m leaving — clock out
+        </>
+      ) : (
+        <>
+          <LogIn className="h-5 w-5" />
+          I&apos;m in — clock in
+        </>
+      )}
+    </button>
+  )
+
   return (
     <>
       {running ? (
@@ -108,22 +213,20 @@ export function ClockCard({
             <p className="mt-1 text-sm text-zinc-400">“{running.note}”</p>
           )}
 
+          {geoActive && (
+            <p className="mt-2 inline-flex items-center gap-1 text-xs text-zinc-400">
+              <MapPin className="h-3 w-3" />
+              Must be at {geofence!.label || 'the work location'}
+            </p>
+          )}
+
           {error && (
             <div className="mt-4">
               <Alert tone="red">{error}</Alert>
             </div>
           )}
 
-          <button
-            onClick={() => {
-              setError(null)
-              setDialogOpen(true)
-            }}
-            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-red-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-red-700"
-          >
-            <LogOut className="h-5 w-5" />
-            I&apos;m leaving — clock out
-          </button>
+          <div className="mt-5">{punchBtn}</div>
         </div>
       ) : (
         <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
@@ -131,22 +234,21 @@ export function ClockCard({
             Not clocked in
           </p>
 
+          {geoActive && (
+            <p className="mt-1 flex items-center justify-center gap-1 text-xs text-zinc-400">
+              <MapPin className="h-3 w-3" />
+              You must be at {geofence!.label || 'the work location'} (
+              {geofence!.radiusM} m)
+            </p>
+          )}
+
           {error && (
             <div className="mt-4">
               <Alert tone="red">{error}</Alert>
             </div>
           )}
 
-          <button
-            onClick={() => {
-              setError(null)
-              setDialogOpen(true)
-            }}
-            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-4 text-base font-semibold text-white transition-colors hover:bg-emerald-700"
-          >
-            <LogIn className="h-5 w-5" />
-            I&apos;m in — clock in
-          </button>
+          <div className="mt-4">{punchBtn}</div>
 
           <button
             type="button"

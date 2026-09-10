@@ -179,6 +179,61 @@ export async function removeMemberAction(userId: string): Promise<ActionResult> 
   }
 }
 
+const geofenceSchema = z
+  .object({
+    enabled: z.union([z.literal('on'), z.literal('true'), z.null()]),
+    lat: z.coerce.number().min(-90).max(90).optional(),
+    lng: z.coerce.number().min(-180).max(180).optional(),
+    radius_m: z.coerce.number().int().min(20).max(5000),
+    label: z
+      .union([z.string(), z.null(), z.undefined()])
+      .transform((v) => (v ? v.trim().slice(0, 120) : null)),
+  })
+  .transform((v) => ({ ...v, enabled: v.enabled != null }))
+
+export async function updateGeofenceAction(
+  formData: FormData
+): Promise<ActionResult> {
+  try {
+    const ctx = await getActionContext()
+    assertManager(ctx)
+
+    const parsed = geofenceSchema.safeParse({
+      enabled: formData.get('enabled'),
+      lat: formData.get('lat') || undefined,
+      lng: formData.get('lng') || undefined,
+      radius_m: formData.get('radius_m'),
+      label: formData.get('label'),
+    })
+    if (!parsed.success) return fail(parsed.error.issues[0].message)
+
+    const { enabled, lat, lng, radius_m, label } = parsed.data
+    if (enabled && (lat === undefined || lng === undefined)) {
+      return fail('Drop a pin on the map before enabling the geofence')
+    }
+
+    const { error } = await ctx.supabase
+      .from('organizations')
+      .update({
+        geofence_enabled: enabled,
+        geofence_lat: lat ?? null,
+        geofence_lng: lng ?? null,
+        geofence_radius_m: radius_m,
+        geofence_label: label,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', ctx.membership.org.id)
+    if (error) return fail(toMessage(error))
+
+    revalidatePath('/settings/workspace')
+    revalidatePath('/dashboard')
+    revalidatePath('/', 'layout')
+    return ok()
+  } catch (e) {
+    return fail(toMessage(e))
+  }
+}
+
 /** Accept an invitation by token (used by /onboarding/invite/[token]). */
 export async function acceptInvitationAction(token: string): Promise<ActionResult> {
   try {

@@ -10,6 +10,8 @@ import {
   toMessage,
   type ActionResult,
 } from './helpers'
+import { checkGeofence } from '@/lib/geo'
+import type { Organization } from '@/lib/types'
 
 function revalidateTimeViews() {
   revalidatePath('/dashboard')
@@ -26,6 +28,38 @@ const punchPhotoSchema = z.object({
   faceScore: z.number().finite(),
 })
 
+const coordsSchema = z.object({
+  lat: z.number().min(-90).max(90).optional(),
+  lng: z.number().min(-180).max(180).optional(),
+  accuracy: z.number().nonnegative().optional(),
+})
+
+/** Server-side geofence gate. Returns an error string, or null when allowed. */
+function geofenceError(
+  org: Organization,
+  lat?: number,
+  lng?: number,
+  accuracy?: number
+): string | null {
+  if (!org.geofence_enabled) return null
+  if (org.geofence_lat == null || org.geofence_lng == null) return null
+  if (lat == null || lng == null) {
+    return 'Location is required to clock in here — enable location access and try again.'
+  }
+  const res = checkGeofence(
+    {
+      lat: org.geofence_lat,
+      lng: org.geofence_lng,
+      radiusM: org.geofence_radius_m,
+      label: org.geofence_label,
+    },
+    lat,
+    lng,
+    accuracy ?? 0
+  )
+  return res.ok ? null : res.reason ?? 'You are outside the allowed area.'
+}
+
 const optionalUuid = z
   .union([z.string().uuid(), z.literal(''), z.null(), z.undefined()])
   .transform((v) => (v ? v : null))
@@ -40,6 +74,9 @@ export async function clockInAction(input: {
   faceScore: number
   projectId?: string | null
   note?: string | null
+  lat?: number
+  lng?: number
+  accuracy?: number
 }): Promise<ActionResult> {
   try {
     const ctx = await getActionContext()
@@ -49,6 +86,16 @@ export async function clockInAction(input: {
     if (!photo.data.photoPath.startsWith(`${ctx.user.id}/`)) {
       return fail('Invalid photo reference')
     }
+
+    const coords = coordsSchema.safeParse(input)
+    if (!coords.success) return fail('Invalid location')
+    const geoErr = geofenceError(
+      ctx.membership.org as Organization,
+      coords.data.lat,
+      coords.data.lng,
+      coords.data.accuracy
+    )
+    if (geoErr) return fail(geoErr)
 
     const projectId = optionalUuid.parse(input?.projectId)
     const note = noteSchema.parse(input?.note)
@@ -72,6 +119,9 @@ export async function clockInAction(input: {
       source: 'web',
       clock_in_photo_path: photo.data.photoPath,
       clock_in_face_score: photo.data.faceScore,
+      clock_in_lat: coords.data.lat ?? null,
+      clock_in_lng: coords.data.lng ?? null,
+      clock_in_accuracy_m: coords.data.accuracy ?? null,
     })
     if (error) return fail(toMessage(error))
 
@@ -86,6 +136,9 @@ export async function clockInAction(input: {
 export async function clockOutAction(input: {
   photoPath: string
   faceScore: number
+  lat?: number
+  lng?: number
+  accuracy?: number
 }): Promise<ActionResult> {
   try {
     const ctx = await getActionContext()
@@ -95,6 +148,16 @@ export async function clockOutAction(input: {
     if (!photo.data.photoPath.startsWith(`${ctx.user.id}/`)) {
       return fail('Invalid photo reference')
     }
+
+    const coords = coordsSchema.safeParse(input)
+    if (!coords.success) return fail('Invalid location')
+    const geoErr = geofenceError(
+      ctx.membership.org as Organization,
+      coords.data.lat,
+      coords.data.lng,
+      coords.data.accuracy
+    )
+    if (geoErr) return fail(geoErr)
 
     const { data: running } = await ctx.supabase
       .from('time_entries')
@@ -117,6 +180,9 @@ export async function clockOutAction(input: {
         ended_at: endedAt.toISOString(),
         clock_out_photo_path: photo.data.photoPath,
         clock_out_face_score: photo.data.faceScore,
+        clock_out_lat: coords.data.lat ?? null,
+        clock_out_lng: coords.data.lng ?? null,
+        clock_out_accuracy_m: coords.data.accuracy ?? null,
       })
       .eq('id', running.id)
     if (error) return fail(toMessage(error))
