@@ -159,32 +159,14 @@ export async function clockOutAction(input: {
     )
     if (geoErr) return fail(geoErr)
 
-    const { data: running } = await ctx.supabase
-      .from('time_entries')
-      .select('id, started_at')
-      .eq('org_id', ctx.membership.org.id)
-      .eq('user_id', ctx.user.id)
-      .is('ended_at', null)
-      .maybeSingle()
-
-    if (!running) return fail('You are not clocked in')
-
-    const endedAt = new Date()
-    if (endedAt.getTime() < new Date(running.started_at).getTime()) {
-      return fail('Clock is out of sync — try again')
-    }
-
-    const { error } = await ctx.supabase
-      .from('time_entries')
-      .update({
-        ended_at: endedAt.toISOString(),
-        clock_out_photo_path: photo.data.photoPath,
-        clock_out_face_score: photo.data.faceScore,
-        clock_out_lat: coords.data.lat ?? null,
-        clock_out_lng: coords.data.lng ?? null,
-        clock_out_accuracy_m: coords.data.accuracy ?? null,
-      })
-      .eq('id', running.id)
+    // Members can't UPDATE time_entries directly, so close via the RPC.
+    const { error } = await ctx.supabase.rpc('close_my_entry', {
+      p_photo_path: photo.data.photoPath,
+      p_face_score: photo.data.faceScore,
+      p_lat: coords.data.lat ?? null,
+      p_lng: coords.data.lng ?? null,
+      p_accuracy_m: coords.data.accuracy ?? null,
+    })
     if (error) return fail(toMessage(error))
 
     revalidateTimeViews()
@@ -223,6 +205,8 @@ export async function addManualEntryAction(
 ): Promise<ActionResult> {
   try {
     const ctx = await getActionContext()
+    assertManager(ctx) // manual entries are managed by owners/admins only
+
     const parsed = manualEntrySchema.safeParse({
       started_at: formData.get('started_at'),
       ended_at: formData.get('ended_at'),
@@ -232,12 +216,10 @@ export async function addManualEntryAction(
     })
     if (!parsed.success) return fail(parsed.error.issues[0].message)
 
-    // Only managers may log time for someone else.
-    let targetUser = ctx.user.id
-    if (parsed.data.user_id && parsed.data.user_id !== ctx.user.id) {
-      assertManager(ctx)
-      targetUser = parsed.data.user_id
-    }
+    const targetUser =
+      parsed.data.user_id && parsed.data.user_id !== ctx.user.id
+        ? parsed.data.user_id
+        : ctx.user.id
 
     const { error } = await ctx.supabase.from('time_entries').insert({
       org_id: ctx.membership.org.id,
@@ -275,6 +257,8 @@ export async function updateEntryAction(
 ): Promise<ActionResult> {
   try {
     const ctx = await getActionContext()
+    assertManager(ctx) // editing entries is owners/admins only
+
     const parsed = updateEntrySchema.safeParse({
       id: formData.get('id'),
       started_at: formData.get('started_at'),
@@ -284,7 +268,7 @@ export async function updateEntryAction(
     })
     if (!parsed.success) return fail(parsed.error.issues[0].message)
 
-    // RLS allows own-or-manager; scope the update by org for safety.
+    // RLS also enforces manager-only; scope the update by org for safety.
     const { error } = await ctx.supabase
       .from('time_entries')
       .update({
@@ -307,6 +291,7 @@ export async function updateEntryAction(
 export async function deleteEntryAction(id: string): Promise<ActionResult> {
   try {
     const ctx = await getActionContext()
+    assertManager(ctx) // deleting entries is owners/admins only
     if (!z.string().uuid().safeParse(id).success) return fail('Invalid entry')
 
     const { error } = await ctx.supabase

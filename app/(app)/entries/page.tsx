@@ -74,7 +74,7 @@ export default async function EntriesPage({
         members={memberOptions}
         showMember={scope === 'all'}
         groupByDay
-        canAdd
+        canManage={isManager}
       />
     </div>
   )

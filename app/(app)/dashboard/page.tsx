@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: 'Dashboard' }
 
 export default async function DashboardPage() {
   const user = await requireUser()
-  const { org } = await requireMembership()
+  const { org, isManager } = await requireMembership()
 
   const supabase = await createClient()
   const now = new Date()
@@ -99,7 +99,7 @@ export default async function DashboardPage() {
         <EntryList
           entries={todayEntries}
           projects={projects}
-          canAdd
+          canManage={isManager}
         />
       </div>
     </div>

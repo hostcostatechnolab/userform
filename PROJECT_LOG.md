@@ -27,6 +27,7 @@ paste and run each file:
 8. [`supabase/migrations/0008_fix_profiles_cascade.sql`](supabase/migrations/0008_fix_profiles_cascade.sql) — repair `profiles_id_fkey` to `ON DELETE CASCADE` (the old table pre-dated 0001) so account deletion actually works **(run this)**
 9. [`supabase/migrations/0009_geofence.sql`](supabase/migrations/0009_geofence.sql) — `organizations.geofence_*` columns + per-punch `clock_in/out_lat/lng/accuracy_m` on `time_entries` **(run this)**
 10. [`supabase/migrations/0010_manager_insert_entries.sql`](supabase/migrations/0010_manager_insert_entries.sql) — fix `time_entries` insert RLS so managers can add an entry for a member (was `user_id = auth.uid()` only) **(run this)**
+11. [`supabase/migrations/0011_lock_entry_edits_to_managers.sql`](supabase/migrations/0011_lock_entry_edits_to_managers.sql) — `time_entries` UPDATE/DELETE → managers + super admins only; `close_my_entry()` RPC so members can still clock out **(run this)**
 
 Grant yourself super admin after 0005:
 `update public.profiles set is_superadmin = true where email = 'you@example.com';`
@@ -51,6 +52,26 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable__...
 ---
 
 ## Timeline
+
+### 2026-09-10 — Session 4 (cont.) — Entries are manager-managed; member self-reports
+
+Members may no longer add / edit / delete time entries — owners/admins only.
+Members keep clock in/out and get a personal Week + Month report.
+
+- SQL `0011`: `time_entries` UPDATE + DELETE policies → `is_org_manager OR
+  is_superadmin` (was own-or-manager). New `close_my_entry(photo, score, lat,
+  lng, acc)` SECURITY DEFINER RPC closes the caller's own running entry (so
+  clock-out doesn't need member UPDATE).
+- `lib/actions/time.ts`: `clockOutAction` calls the RPC; `addManualEntryAction` /
+  `updateEntryAction` / `deleteEntryAction` all `assertManager()` up front.
+- `EntryList`: `canAdd` → `canManage`; when false, no Add button and no per-row
+  edit/delete (list is read-only). Dashboard + `/entries` pass
+  `canManage={isManager}`.
+- `/timesheet` reworked → **My Timesheet** with a **Week / Month** toggle
+  (`?p=week|month&o=<offset>`): period total (+ decimal hours), a **By project**
+  breakdown with bars, and the per-day list (month view hides empty days).
+  Still member-scoped + read-only.
+- `tsc` + `next build` clean (24 routes).
 
 ### 2026-09-10 — Session 4 (cont.) — Live auto-verify face scan
 
@@ -407,7 +428,7 @@ app/
   (app)/
     layout.tsx               requireUser + requireMembership; renders shell
     dashboard/page.tsx       ClockCard (I'm in/out toggle) + today/week totals + today's entries
-    timesheet/page.tsx       week view, ?w=<offset>, per-day + week totals
+    timesheet/page.tsx       My Timesheet — Week/Month toggle (?p&o), period total, by-project bars, per-day list (member-scoped, read-only)
     entries/page.tsx         30-day history grouped by day; ?scope=all for managers
     attendance/page.tsx      requireManager; ?w=<offset>; weekly grid members × days
     monthly/page.tsx         requireManager; ?m=<offset>; monthly heatmap members × day-of-month + CSV
@@ -464,7 +485,7 @@ lib/
     activity.ts              loadSessionScreenshotsAction
     admin.ts                 setUserDeactivatedAction, deleteUserAction (superadmin only)
     org.ts                   createOrganization, switchOrganization, invite/revoke, updateMemberRole, removeMember, acceptInvitation
-    time.ts                  clockIn/clockOut (now require {photoPath, faceScore}), addManualEntry, updateEntry, deleteEntry
+    time.ts                  clockIn (insert), clockOut (close_my_entry RPC); addManualEntry/updateEntry/deleteEntry — assertManager
     projects.ts              createProject, updateProject, setProjectArchived
     profile.ts               updateProfile
 

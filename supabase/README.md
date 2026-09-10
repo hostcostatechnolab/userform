@@ -42,6 +42,9 @@ paste and **Run** each file, in order:
 10. [`migrations/0010_manager_insert_entries.sql`](migrations/0010_manager_insert_entries.sql) —
     fixes `time_entries` insert RLS so a manager can add a manual entry **for a
     member** (previously only `user_id = auth.uid()` passed)
+11. [`migrations/0011_lock_entry_edits_to_managers.sql`](migrations/0011_lock_entry_edits_to_managers.sql) —
+    `time_entries` UPDATE/DELETE become managers-only; adds `close_my_entry()`
+    RPC so members can still clock out
 
 Each script is idempotent-ish (`if not exists` / `create or replace` /
 `drop policy if exists` / `add column if not exists`), so re-running is safe.

@@ -23,7 +23,8 @@ interface Props {
   members?: { user_id: string; name: string }[]
   showMember?: boolean
   groupByDay?: boolean
-  canAdd?: boolean
+  /** Owners/admins only: shows Add + per-row edit/delete. Members get a read-only list. */
+  canManage?: boolean
 }
 
 export function EntryList({
@@ -32,7 +33,7 @@ export function EntryList({
   members,
   showMember = false,
   groupByDay = false,
-  canAdd = true,
+  canManage = false,
 }: Props) {
   const router = useRouter()
   const { pending, error, run } = useAction()
@@ -72,7 +73,7 @@ export function EntryList({
 
   return (
     <div className="space-y-4">
-      {canAdd && (
+      {canManage && (
         <div className="flex justify-end">
           <Button size="sm" variant="outline" onClick={openAdd}>
             <Plus className="h-4 w-4" />
@@ -86,9 +87,13 @@ export function EntryList({
       {entries.length === 0 ? (
         <EmptyState
           title="No time entries"
-          description="Clock in from the dashboard or add one manually."
+          description={
+            canManage
+              ? 'Clock in from the dashboard or add one manually.'
+              : 'Clock in from the dashboard to start tracking.'
+          }
           action={
-            canAdd ? (
+            canManage ? (
               <Button size="sm" onClick={openAdd}>
                 <Plus className="h-4 w-4" /> Add entry
               </Button>
@@ -154,23 +159,25 @@ export function EntryList({
                           entryDurationMs(entry.started_at, entry.ended_at)
                         )}
                       </span>
-                      <div className="flex shrink-0 items-center gap-1">
-                        <button
-                          onClick={() => openEdit(entry)}
-                          className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
-                          aria-label="Edit"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => remove(entry.id)}
-                          disabled={pending}
-                          className="rounded-lg p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
-                          aria-label="Delete"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
+                      {canManage && (
+                        <div className="flex shrink-0 items-center gap-1">
+                          <button
+                            onClick={() => openEdit(entry)}
+                            className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+                            aria-label="Edit"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => remove(entry.id)}
+                            disabled={pending}
+                            className="rounded-lg p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                            aria-label="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
                     </li>
                   )
                 })}
