@@ -22,6 +22,7 @@ paste and run each file:
 3. [`supabase/migrations/0003_face_recognition.sql`](supabase/migrations/0003_face_recognition.sql) — face columns + `attendance-selfies` bucket *(done)*
 4. [`supabase/migrations/0004_tasks_and_activity.sql`](supabase/migrations/0004_tasks_and_activity.sql) — `tasks`, `activity_sessions`, `screenshots` + `activity-screenshots` bucket **(run this)**
 5. [`supabase/migrations/0005_superadmin.sql`](supabase/migrations/0005_superadmin.sql) — `profiles.is_superadmin` / `deactivated_at` / `email`, cross-org RLS grants, deactivated-write blocks **(run this)**
+6. [`supabase/migrations/0006_invitation_preview.sql`](supabase/migrations/0006_invitation_preview.sql) — `invitation_preview(token)` RPC + invited-email read policy so the invite link works for logged-out / non-manager users **(run this)**
 
 Grant yourself super admin after 0005:
 `update public.profiles set is_superadmin = true where email = 'you@example.com';`
@@ -46,6 +47,27 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable__...
 ---
 
 ## Timeline
+
+### 2026-09-10 — Session 4 (cont.) — Fix invitation link for new users
+
+Reported: opening `/onboarding/invite/<token>` while logged out just bounced to
+`/login`, and a new invitee ended up on `/onboarding` (create workspace) with no
+sign of the invite. Two root causes: the route was auth-gated by the proxy, and
+`invitations` RLS only lets *managers* SELECT (an invitee is not one yet).
+
+- SQL `0006_invitation_preview.sql`: `invitation_preview(p_token)` SECURITY
+  DEFINER RPC (granted to anon + authenticated) returning org name / role /
+  email / status for a pending invite; plus an `invitations` SELECT policy for
+  `lower(email) = auth.jwt()->>'email'`.
+- `proxy.ts` — `PUBLIC_EXCEPTIONS = ['/onboarding/invite/']` so logged-out users
+  reach the page.
+- Invite page rewritten: uses the RPC; four states — invalid, logged-out (Create
+  account / I have an account, both carrying `?redirect` + `?email`), wrong
+  account (sign out), ready-to-accept.
+- `AuthForm` — carries `?redirect` + `?email` across the login/register toggle,
+  prefills the email, and on register-with-session pushes to `redirect` instead
+  of `/onboarding` (and the "check your inbox" copy tells invitees to reopen the
+  link).
 
 ### 2026-09-10 — Session 4 — Platform Super Admin + account deactivation
 

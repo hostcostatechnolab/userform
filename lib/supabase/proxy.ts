@@ -20,6 +20,9 @@ const PROTECTED_PREFIXES = [
 /** Auth pages a logged-in user should be bounced away from. */
 const AUTH_ROUTES = ['/login', '/register']
 
+/** Protected-prefix matches that are nonetheless reachable while signed out. */
+const PUBLIC_EXCEPTIONS = ['/onboarding/invite/']
+
 /**
  * Runs on every request: refreshes the Supabase session cookie and performs
  * coarse auth redirects. Fine-grained org/role checks happen in layouts.
@@ -54,9 +57,10 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  const isProtected = PROTECTED_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(p + '/')
-  )
+  const isProtected =
+    PROTECTED_PREFIXES.some(
+      (p) => pathname === p || pathname.startsWith(p + '/')
+    ) && !PUBLIC_EXCEPTIONS.some((p) => pathname.startsWith(p))
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone()

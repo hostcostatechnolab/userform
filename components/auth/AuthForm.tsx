@@ -27,8 +27,18 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const isLogin = mode === 'login'
   const router = useRouter()
   const search = useSearchParams()
-  const redirectTo = search.get('redirect') || '/dashboard'
+  const redirectParam = search.get('redirect')
+  const redirectTo = redirectParam || '/dashboard'
+  const prefillEmail = search.get('email') || ''
   const supabase = createClient()
+
+  // Preserve ?redirect / ?email when toggling between login and register.
+  const toggleQuery = new URLSearchParams()
+  if (redirectParam) toggleQuery.set('redirect', redirectParam)
+  if (prefillEmail) toggleQuery.set('email', prefillEmail)
+  const toggleHref =
+    (isLogin ? '/register' : '/login') +
+    (toggleQuery.toString() ? `?${toggleQuery.toString()}` : '')
 
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
@@ -41,6 +51,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   } = useForm<z.infer<typeof registerSchema>>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver((isLogin ? loginSchema : registerSchema) as any),
+    defaultValues: { email: prefillEmail },
   })
 
   const onSubmit = handleSubmit(async (data) => {
@@ -72,11 +83,13 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
         // Email confirmation on: no session yet.
         if (!signUp.session) {
           setNotice(
-            'Check your inbox to confirm your email, then sign in.'
+            redirectParam
+              ? 'Check your inbox to confirm your email, then open the invite link again.'
+              : 'Check your inbox to confirm your email, then sign in.'
           )
           return
         }
-        router.push('/onboarding')
+        router.push(redirectParam || '/onboarding')
         router.refresh()
       }
     } catch (err) {
@@ -190,7 +203,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
       <p className="text-center text-sm text-zinc-600">
         {isLogin ? "Don't have an account? " : 'Already have an account? '}
         <Link
-          href={isLogin ? '/register' : '/login'}
+          href={toggleHref}
           className="font-semibold text-zinc-900 hover:underline"
         >
           {isLogin ? 'Sign up' : 'Sign in'}

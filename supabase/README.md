@@ -25,6 +25,10 @@ paste and **Run** each file, in order:
 
    Grant yourself super admin afterwards:
    `update public.profiles set is_superadmin = true where email = 'you@example.com';`
+6. [`migrations/0006_invitation_preview.sql`](migrations/0006_invitation_preview.sql) —
+   `invitation_preview(token)` RPC + an invited-email SELECT policy so the
+   `/onboarding/invite/<token>` link works for people who aren't signed in (or
+   aren't managers) yet
 
 Each script is idempotent-ish (`if not exists` / `create or replace` /
 `drop policy if exists` / `add column if not exists`), so re-running is safe.
