@@ -21,41 +21,41 @@ export default async function AdminOverviewPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Overview</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Overview</h1>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {tiles.map((t) => (
           <Card key={t.label}>
             <CardContent className="p-4">
-              <t.icon className="h-4 w-4 text-zinc-400" />
-              <p className="mt-2 text-2xl font-bold tabular-nums text-zinc-900">
+              <t.icon className="h-4 w-4 text-slate-400" />
+              <p className="mt-2 text-2xl font-bold tabular-nums text-slate-900">
                 {t.value}
               </p>
-              <p className="text-xs text-zinc-500">{t.label}</p>
+              <p className="text-xs text-slate-500">{t.label}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
       <div>
-        <h2 className="mb-2 text-sm font-semibold text-zinc-700">
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">
           Recent organizations
         </h2>
-        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-          <ul className="divide-y divide-zinc-100">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <ul className="divide-y divide-slate-100">
             {orgs.slice(0, 8).map((o) => (
               <li key={o.id}>
                 <Link
                   href={`/admin/organizations/${o.id}`}
-                  className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-zinc-50"
+                  className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-slate-50"
                 >
-                  <span className="flex-1 font-medium text-zinc-900">
+                  <span className="flex-1 font-medium text-slate-900">
                     {o.name}
                   </span>
-                  <span className="text-xs text-zinc-500">
+                  <span className="text-xs text-slate-500">
                     {o.member_count} member(s) · {o.project_count} project(s)
                   </span>
-                  <span className="text-xs text-zinc-400">
+                  <span className="text-xs text-slate-400">
                     {formatDayLabel(o.created_at)}
                   </span>
                 </Link>

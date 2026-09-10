@@ -53,6 +53,30 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable__...
 
 ## Timeline
 
+### 2026-09-10 — Session 4 (cont.) — Visual redesign (dark-navy + electric blue)
+
+Full theme pass — "modern AI console" look, mobile-first. No SQL / no behaviour
+change.
+- `app/globals.css` rewritten as a token system: `--app/--surface/--navy/--ink/
+  --line/--primary…` exposed via `@theme inline` (`bg-navy`, `bg-app`, `shadow-
+  card`, `shadow-pop`), a fixed blue-aurora body background, themed scrollbars,
+  and helpers (`.glass`, `.text-gradient`, `.card`, `.animate-fade-in`).
+- Bulk `zinc-*` → `slate-*` and `indigo-*` → `blue-*` across ~49 files (tone
+  identifiers like `Badge tone="zinc"` untouched — no hyphen).
+- Shell: **dark-navy sidebar** (active pill + blue rail), **glass topbar**,
+  **navy bottom nav** on mobile with safe-area padding, gradient brand mark,
+  gradient avatar. Admin header also navy, wraps on mobile.
+- UI primitives: `Button` primary = blue gradient + press scale; `Card` softer
+  double shadow; inputs get a blue focus ring; `Badge` gains an inset ring;
+  `Modal` = fade-in, bigger shadow, bottom-sheet on mobile (unchanged).
+- `ClockCard`: running state is now a **navy→blue gradient card** with glow, live
+  pulse dot, 6xl mono timer; buttons are gradient with shadow.
+- Landing rebuilt around the real feature set (face / geofence / reports /
+  screenshots) with a badge, gradient headline, glass feature grid.
+- Auth / onboarding / deactivated screens drop their solid bg so the aurora
+  shows; auth card is glassy; auth submit buttons → blue gradient.
+- `tsc` + `next build` clean (24 routes).
+
 ### 2026-09-10 — Session 4 (cont.) — Entries are manager-managed; member self-reports
 
 Members may no longer add / edit / delete time entries — owners/admins only.

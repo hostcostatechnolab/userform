@@ -37,7 +37,7 @@ export function ProfileForm({
       <div>
         <Label htmlFor="full_name">Full name</Label>
         <div className="relative">
-          <User className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-zinc-400" />
+          <User className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-slate-400" />
           <Input
             id="full_name"
             name="full_name"
@@ -53,7 +53,7 @@ export function ProfileForm({
       <div>
         <Label htmlFor="phone_number">Phone number</Label>
         <div className="relative">
-          <Phone className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-zinc-400" />
+          <Phone className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-slate-400" />
           <Input
             id="phone_number"
             name="phone_number"
@@ -68,7 +68,7 @@ export function ProfileForm({
       <div>
         <Label htmlFor="bio">Bio</Label>
         <div className="relative">
-          <FileText className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-zinc-400" />
+          <FileText className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-slate-400" />
           <Textarea
             id="bio"
             name="bio"

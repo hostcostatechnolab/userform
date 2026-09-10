@@ -21,7 +21,7 @@ const DOW = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 /** Hours-only shade ramp. */
 function cellClass(cell: MonthCell): string {
   if (cell.totalMs === 0) {
-    return cell.isWeekend ? 'bg-zinc-50' : 'bg-zinc-100'
+    return cell.isWeekend ? 'bg-slate-50' : 'bg-slate-100'
   }
   const h = cell.totalMs / 3_600_000
   if (h < 2) return 'bg-emerald-100'
@@ -94,18 +94,18 @@ export function MonthlyHeatmap({
         </Button>
       </div>
 
-      <div className="mt-3 overflow-x-auto rounded-2xl border border-zinc-200 bg-white">
+      <div className="mt-3 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
         <table className="border-separate border-spacing-0 text-xs">
           <thead>
             <tr>
-              <th className="sticky left-0 z-10 border-b border-zinc-200 bg-white px-4 py-2 text-left font-semibold text-zinc-600">
+              <th className="sticky left-0 z-10 border-b border-slate-200 bg-white px-4 py-2 text-left font-semibold text-slate-600">
                 Member
               </th>
               {days.map((d) => (
                 <th
                   key={d.dayKey}
-                  className={`border-b border-zinc-200 px-0 py-1.5 text-center font-medium ${
-                    d.isWeekend ? 'text-zinc-300' : 'text-zinc-500'
+                  className={`border-b border-slate-200 px-0 py-1.5 text-center font-medium ${
+                    d.isWeekend ? 'text-slate-300' : 'text-slate-500'
                   }`}
                   style={{ minWidth: 26 }}
                 >
@@ -121,7 +121,7 @@ export function MonthlyHeatmap({
                   </div>
                 </th>
               ))}
-              <th className="sticky right-0 z-10 border-b border-l border-zinc-200 bg-white px-3 py-2 text-right font-semibold text-zinc-600">
+              <th className="sticky right-0 z-10 border-b border-l border-slate-200 bg-white px-3 py-2 text-right font-semibold text-slate-600">
                 Total
               </th>
             </tr>
@@ -129,20 +129,20 @@ export function MonthlyHeatmap({
           <tbody>
             {rows.map((row) => (
               <tr key={row.userId} className="group">
-                <td className="sticky left-0 z-10 border-b border-zinc-100 bg-white px-4 py-1.5 font-medium text-zinc-900 group-hover:bg-zinc-50">
+                <td className="sticky left-0 z-10 border-b border-slate-100 bg-white px-4 py-1.5 font-medium text-slate-900 group-hover:bg-slate-50">
                   {row.name}
                 </td>
                 {row.cells.map((cell) => (
                   <td
                     key={cell.dayKey}
-                    className="border-b border-zinc-100 p-[2px] text-center"
+                    className="border-b border-slate-100 p-[2px] text-center"
                   >
                     <button
                       onClick={() => setActive({ row, cell })}
                       title={`${row.name} · ${cell.dayKey}${
                         cell.totalMs ? ` · ${formatDuration(cell.totalMs)}` : ''
                       }`}
-                      className={`h-6 w-6 rounded-[5px] text-[9px] font-semibold tabular-nums transition-transform hover:scale-110 hover:ring-2 hover:ring-zinc-900/20 ${cellClass(
+                      className={`h-6 w-6 rounded-[5px] text-[9px] font-semibold tabular-nums transition-transform hover:scale-110 hover:ring-2 hover:ring-slate-900/20 ${cellClass(
                         cell
                       )} ${
                         cell.dayKey === todayKey ? 'ring-1 ring-emerald-500' : ''
@@ -154,7 +154,7 @@ export function MonthlyHeatmap({
                     </button>
                   </td>
                 ))}
-                <td className="sticky right-0 z-10 border-b border-l border-zinc-100 bg-white px-3 py-1.5 text-right font-semibold tabular-nums text-zinc-800 group-hover:bg-zinc-50">
+                <td className="sticky right-0 z-10 border-b border-l border-slate-100 bg-white px-3 py-1.5 text-right font-semibold tabular-nums text-slate-800 group-hover:bg-slate-50">
                   {formatDuration(row.totalMs)}
                 </td>
               </tr>
@@ -163,9 +163,9 @@ export function MonthlyHeatmap({
         </table>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
         <span>Fewer hours</span>
-        <span className="h-4 w-4 rounded bg-zinc-100" />
+        <span className="h-4 w-4 rounded bg-slate-100" />
         <span className="h-4 w-4 rounded bg-emerald-100" />
         <span className="h-4 w-4 rounded bg-emerald-200" />
         <span className="h-4 w-4 rounded bg-emerald-300" />

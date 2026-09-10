@@ -145,7 +145,7 @@ export function ClockCard({
 
   if (!enrolled) {
     return (
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center">
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center shadow-sm">
         <ScanFace className="mx-auto h-8 w-8 text-amber-500" />
         <p className="mt-2 text-sm font-semibold text-amber-800">
           Face ID required
@@ -155,7 +155,7 @@ export function ClockCard({
         </p>
         <Link
           href="/settings/profile"
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-zinc-800"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-800"
         >
           Set up Face ID
         </Link>
@@ -168,10 +168,10 @@ export function ClockCard({
       onClick={startPunch}
       disabled={locating}
       className={cn(
-        'inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-4 text-base font-semibold text-white transition-colors disabled:opacity-70',
+        'inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-4 text-base font-semibold text-white shadow-lg transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100',
         running
-          ? 'bg-red-600 hover:bg-red-700'
-          : 'bg-emerald-600 hover:bg-emerald-700'
+          ? 'bg-gradient-to-b from-red-500 to-red-600 shadow-red-600/25 hover:from-red-500 hover:to-red-600'
+          : 'bg-gradient-to-b from-emerald-500 to-emerald-600 shadow-emerald-600/30 hover:from-emerald-500 hover:to-emerald-600'
       )}
     >
       {locating ? (
@@ -196,14 +196,16 @@ export function ClockCard({
   return (
     <>
       {running ? (
-        <div className="rounded-2xl border border-zinc-200 bg-white p-6 text-center shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
+        <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-navy via-[#132542] to-[#0b1220] p-6 text-center text-white shadow-[0_20px_50px_-20px_rgba(37,99,235,0.5)]">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-blue-500/20 blur-3xl" />
+          <p className="relative inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-emerald-300">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
             You&apos;re clocked in
           </p>
-          <p className="mt-2 font-mono text-5xl font-bold tabular-nums text-zinc-900">
+          <p className="relative mt-2 font-mono text-5xl font-bold tabular-nums text-white sm:text-6xl">
             <LiveTimer startedAt={running.started_at} />
           </p>
-          <p className="mt-2 text-sm text-zinc-500">
+          <p className="relative mt-2 text-sm text-slate-300">
             Since {formatTimeOfDay(running.started_at)}
             {running.project && (
               <span className="ml-2 inline-flex items-center gap-1">
@@ -213,32 +215,35 @@ export function ClockCard({
             )}
           </p>
           {running.note && (
-            <p className="mt-1 text-sm text-zinc-400">“{running.note}”</p>
+            <p className="relative mt-1 text-sm text-slate-400">
+              “{running.note}”
+            </p>
           )}
 
           {geoActive && (
-            <p className="mt-2 inline-flex items-center gap-1 text-xs text-zinc-400">
+            <p className="relative mt-2 inline-flex items-center gap-1 text-xs text-slate-400">
               <MapPin className="h-3 w-3" />
               Must be at {geofence!.label || 'the work location'}
             </p>
           )}
 
           {error && (
-            <div className="mt-4">
+            <div className="relative mt-4">
               <Alert tone="red">{error}</Alert>
             </div>
           )}
 
-          <div className="mt-5">{punchBtn}</div>
+          <div className="relative mt-5">{punchBtn}</div>
         </div>
       ) : (
-        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-          <p className="text-center text-xs font-semibold uppercase tracking-wide text-zinc-400">
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_32px_-16px_rgba(15,23,42,0.12)]">
+          <div className="pointer-events-none absolute inset-x-0 -top-24 h-32 bg-gradient-to-b from-blue-500/10 to-transparent" />
+          <p className="relative text-center text-xs font-semibold uppercase tracking-wide text-slate-400">
             Not clocked in
           </p>
 
           {geoActive && (
-            <p className="mt-1 flex items-center justify-center gap-1 text-xs text-zinc-400">
+            <p className="mt-1 flex items-center justify-center gap-1 text-xs text-slate-400">
               <MapPin className="h-3 w-3" />
               You must be at {geofence!.label || 'the work location'} (
               {geofence!.radiusM} m)
@@ -256,7 +261,7 @@ export function ClockCard({
           <button
             type="button"
             onClick={() => setShowDetails((v) => !v)}
-            className="mx-auto mt-3 flex items-center gap-1 text-xs font-medium text-zinc-400 hover:text-zinc-600"
+            className="mx-auto mt-3 flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-slate-600"
           >
             <ChevronDown
               className={cn(

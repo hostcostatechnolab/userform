@@ -12,7 +12,7 @@ export function Topbar({
   email: string | null
 }) {
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-zinc-200 bg-white/90 px-4 backdrop-blur sm:px-6">
+    <header className="glass sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200/70 px-4 sm:px-6">
       <OrgSwitcher membership={membership} />
       <UserMenu name={name} email={email} />
     </header>

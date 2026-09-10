@@ -46,14 +46,14 @@ export function FaceEnrollCard({
     <Card>
       <CardContent className="space-y-4">
         <div className="flex items-start gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-100">
-            <ScanFace className="h-5 w-5 text-zinc-700" />
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100">
+            <ScanFace className="h-5 w-5 text-slate-700" />
           </div>
           <div className="flex-1">
-            <h3 className="text-sm font-semibold text-zinc-900">
+            <h3 className="text-sm font-semibold text-slate-900">
               Face ID for clock in
             </h3>
-            <p className="mt-0.5 text-sm text-zinc-500">
+            <p className="mt-0.5 text-sm text-slate-500">
               Required. You&apos;ll capture your face from a few angles; it&apos;s
               matched against the closest one every time you clock in or out.
             </p>
@@ -76,7 +76,7 @@ export function FaceEnrollCard({
               className="h-20 w-20 rounded-xl object-cover"
             />
           ) : (
-            <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-zinc-300 text-zinc-300">
+            <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-slate-300 text-slate-300">
               <ScanFace className="h-7 w-7" />
             </div>
           )}

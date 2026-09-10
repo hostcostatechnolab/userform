@@ -85,7 +85,7 @@ export function ReportsView({
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
           Reports
         </h1>
         <Button
@@ -99,7 +99,7 @@ export function ReportsView({
         </Button>
       </div>
 
-      <div className="grid gap-3 rounded-2xl border border-zinc-200 bg-white p-4 sm:grid-cols-3">
+      <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-3">
         <div>
           <Label htmlFor="from">From</Label>
           <Input
@@ -132,9 +132,9 @@ export function ReportsView({
         </div>
       </div>
 
-      <div className="flex items-center justify-between rounded-2xl border border-zinc-200 bg-white p-5">
-        <span className="text-sm font-semibold text-zinc-500">Total hours</span>
-        <span className="text-2xl font-bold tabular-nums text-zinc-900">
+      <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-5">
+        <span className="text-sm font-semibold text-slate-500">Total hours</span>
+        <span className="text-2xl font-bold tabular-nums text-slate-900">
           {formatDuration(totalMs)}
         </span>
       </div>
@@ -145,25 +145,25 @@ export function ReportsView({
           description="Adjust the dates or clock some time first."
         />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-          <ul className="divide-y divide-zinc-100">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <ul className="divide-y divide-slate-100">
             {rows.map((row) => (
               <li key={row.key} className="px-4 py-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2 font-medium text-zinc-900">
+                  <span className="flex items-center gap-2 font-medium text-slate-900">
                     {row.color && <ColorDot color={row.color} />}
                     {row.label}
                   </span>
-                  <span className="tabular-nums text-zinc-700">
+                  <span className="tabular-nums text-slate-700">
                     {formatDuration(row.totalMs)}
-                    <span className="ml-2 text-xs text-zinc-400">
+                    <span className="ml-2 text-xs text-slate-400">
                       {toDecimalHours(row.totalMs)}h
                     </span>
                   </span>
                 </div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-100">
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
                   <div
-                    className="h-full rounded-full bg-zinc-900"
+                    className="h-full rounded-full bg-slate-900"
                     style={{ width: `${(row.totalMs / max) * 100}%` }}
                   />
                 </div>

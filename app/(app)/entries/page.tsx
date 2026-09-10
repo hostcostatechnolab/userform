@@ -42,14 +42,14 @@ export default async function EntriesPage({
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             Time Entries
           </h1>
-          <p className="text-sm text-zinc-500">Last {RANGE_DAYS} days</p>
+          <p className="text-sm text-slate-500">Last {RANGE_DAYS} days</p>
         </div>
 
         {isManager && (
-          <div className="flex rounded-xl border border-zinc-200 bg-white p-0.5 text-sm">
+          <div className="flex rounded-xl border border-slate-200 bg-white p-0.5 text-sm">
             {(['me', 'all'] as const).map((s) => (
               <Link
                 key={s}
@@ -57,8 +57,8 @@ export default async function EntriesPage({
                 className={cn(
                   'rounded-lg px-3 py-1.5 font-medium',
                   scope === s
-                    ? 'bg-zinc-900 text-white'
-                    : 'text-zinc-600 hover:text-zinc-900'
+                    ? 'bg-slate-900 text-white'
+                    : 'text-slate-600 hover:text-slate-900'
                 )}
               >
                 {s === 'me' ? 'My entries' : 'Everyone'}

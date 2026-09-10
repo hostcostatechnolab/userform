@@ -104,14 +104,14 @@ export default async function TimesheetPage({
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             My Timesheet
           </h1>
-          <p className="text-sm text-zinc-500">{periodLabel}</p>
+          <p className="text-sm text-slate-500">{periodLabel}</p>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex rounded-xl border border-zinc-200 bg-white p-0.5 text-sm">
+          <div className="flex rounded-xl border border-slate-200 bg-white p-0.5 text-sm">
             {(['week', 'month'] as const).map((p) => (
               <Link
                 key={p}
@@ -119,8 +119,8 @@ export default async function TimesheetPage({
                 className={cn(
                   'rounded-lg px-3 py-1.5 font-medium capitalize',
                   period === p
-                    ? 'bg-zinc-900 text-white'
-                    : 'text-zinc-600 hover:text-zinc-900'
+                    ? 'bg-slate-900 text-white'
+                    : 'text-slate-600 hover:text-slate-900'
                 )}
               >
                 {p}
@@ -130,7 +130,7 @@ export default async function TimesheetPage({
 
           <Link
             href={nav(period, offset - 1)}
-            className="rounded-xl border border-zinc-200 bg-white p-2 text-zinc-600 hover:bg-zinc-50"
+            className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50"
             aria-label="Previous"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -138,14 +138,14 @@ export default async function TimesheetPage({
           {offset !== 0 && (
             <Link
               href={nav(period, 0)}
-              className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50"
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
             >
               This {period}
             </Link>
           )}
           <Link
             href={nav(period, offset + 1)}
-            className="rounded-xl border border-zinc-200 bg-white p-2 text-zinc-600 hover:bg-zinc-50"
+            className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50"
             aria-label="Next"
           >
             <ChevronRight className="h-4 w-4" />
@@ -154,37 +154,37 @@ export default async function TimesheetPage({
       </div>
 
       <Card className="flex items-center justify-between p-5">
-        <span className="text-sm font-semibold text-zinc-500 capitalize">
+        <span className="text-sm font-semibold text-slate-500 capitalize">
           {period} total
         </span>
-        <span className="text-2xl font-bold tabular-nums text-zinc-900">
+        <span className="text-2xl font-bold tabular-nums text-slate-900">
           {formatDuration(total)}
-          <span className="ml-2 text-sm font-normal text-zinc-400">
+          <span className="ml-2 text-sm font-normal text-slate-400">
             {toDecimalHours(total)}h
           </span>
         </span>
       </Card>
 
       {projRows.length > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-          <div className="border-b border-zinc-100 bg-zinc-50 px-4 py-2.5 text-sm font-semibold text-zinc-700">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <div className="border-b border-slate-100 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700">
             By project
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-slate-100">
             {projRows.map((r) => (
               <li key={r.name} className="px-4 py-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2 font-medium text-zinc-900">
+                  <span className="flex items-center gap-2 font-medium text-slate-900">
                     <ColorDot color={r.color} />
                     {r.name}
                   </span>
-                  <span className="tabular-nums text-zinc-700">
+                  <span className="tabular-nums text-slate-700">
                     {formatDuration(r.ms)}
                   </span>
                 </div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-100">
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
                   <div
-                    className="h-full rounded-full bg-zinc-900"
+                    className="h-full rounded-full bg-slate-900"
                     style={{ width: `${(r.ms / projMax) * 100}%` }}
                   />
                 </div>
@@ -208,43 +208,43 @@ export default async function TimesheetPage({
           return (
             <div
               key={key}
-              className="overflow-hidden rounded-2xl border border-zinc-200 bg-white"
+              className="overflow-hidden rounded-2xl border border-slate-200 bg-white"
             >
-              <div className="flex items-center justify-between border-b border-zinc-100 bg-zinc-50 px-4 py-2.5">
-                <span className="text-sm font-semibold text-zinc-700">
+              <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5">
+                <span className="text-sm font-semibold text-slate-700">
                   {day.toLocaleDateString(undefined, {
                     weekday: 'long',
                     month: 'short',
                     day: 'numeric',
                   })}
                   {isToday && (
-                    <span className="ml-2 rounded-full bg-zinc-900 px-2 py-0.5 text-[10px] font-medium text-white">
+                    <span className="ml-2 rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-white">
                       Today
                     </span>
                   )}
                 </span>
-                <span className="text-sm font-medium text-zinc-500 tabular-nums">
+                <span className="text-sm font-medium text-slate-500 tabular-nums">
                   {dayEntries.length ? formatDuration(dayTotal) : '—'}
                 </span>
               </div>
               {dayEntries.length > 0 && (
-                <ul className="divide-y divide-zinc-100">
+                <ul className="divide-y divide-slate-100">
                   {dayEntries.map((e) => (
                     <li
                       key={e.id}
                       className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm"
                     >
-                      <span className="tabular-nums text-zinc-800">
+                      <span className="tabular-nums text-slate-800">
                         {formatTimeOfDay(e.started_at)} –{' '}
                         {e.ended_at ? formatTimeOfDay(e.ended_at) : 'now'}
                       </span>
                       {e.project && (
-                        <span className="inline-flex flex-1 items-center gap-1.5 truncate text-zinc-500">
+                        <span className="inline-flex flex-1 items-center gap-1.5 truncate text-slate-500">
                           <ColorDot color={e.project.color} />
                           <span className="truncate">{e.project.name}</span>
                         </span>
                       )}
-                      <span className="tabular-nums font-medium text-zinc-700">
+                      <span className="tabular-nums font-medium text-slate-700">
                         {formatDuration(
                           entryDurationMs(e.started_at, e.ended_at)
                         )}

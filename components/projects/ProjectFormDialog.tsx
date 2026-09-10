@@ -82,7 +82,7 @@ export function ProjectFormDialog({
                 className={cn(
                   'h-8 w-8 rounded-full border-2 transition-transform',
                   color === c
-                    ? 'scale-110 border-zinc-900'
+                    ? 'scale-110 border-slate-900'
                     : 'border-transparent hover:scale-105'
                 )}
                 style={{ backgroundColor: c }}

@@ -16,13 +16,15 @@ export function AdminNav() {
   const pathname = usePathname()
 
   return (
-    <header className="border-b border-zinc-200 bg-white">
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
-        <span className="flex items-center gap-2 font-semibold text-zinc-900">
-          <Shield className="h-5 w-5 text-indigo-600" />
+    <header className="border-b border-white/10 bg-navy text-slate-300">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
+        <span className="flex items-center gap-2 font-semibold text-white">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-b from-blue-500 to-blue-600">
+            <Shield className="h-4 w-4 text-white" />
+          </span>
           Super Admin
         </span>
-        <nav className="flex flex-1 items-center gap-1">
+        <nav className="order-3 flex w-full items-center gap-1 sm:order-none sm:w-auto sm:flex-1">
           {ITEMS.map((item) => {
             const active = item.exact
               ? pathname === item.href
@@ -32,10 +34,10 @@ export function AdminNav() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium',
+                  'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
                   active
-                    ? 'bg-zinc-900 text-white'
-                    : 'text-zinc-600 hover:bg-zinc-100'
+                    ? 'bg-white/10 text-white'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
                 )}
               >
                 <item.icon className="h-4 w-4" />
@@ -46,14 +48,14 @@ export function AdminNav() {
         </nav>
         <Link
           href="/dashboard"
-          className="flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900"
+          className="ml-auto flex items-center gap-1 text-sm text-slate-400 hover:text-white sm:ml-0"
         >
           <ArrowLeft className="h-4 w-4" /> App
         </Link>
         <form action={signOutAction}>
           <button
             type="submit"
-            className="text-sm font-medium text-red-600 hover:underline"
+            className="text-sm font-medium text-red-400 hover:text-red-300"
           >
             Sign out
           </button>

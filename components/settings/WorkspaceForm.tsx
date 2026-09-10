@@ -48,19 +48,19 @@ export function WorkspaceForm({ org }: { org: Organization }) {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5">
         <label className="flex items-start gap-3">
           <input
             type="checkbox"
             checked={enabled}
             onChange={(e) => setEnabled(e.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-zinc-300"
+            className="mt-1 h-4 w-4 rounded border-slate-300"
           />
           <span>
-            <span className="block text-sm font-semibold text-zinc-900">
+            <span className="block text-sm font-semibold text-slate-900">
               Require members to be at a location to clock in
             </span>
-            <span className="block text-sm text-zinc-500">
+            <span className="block text-sm text-slate-500">
               When on, the website clock checks the member&apos;s GPS and blocks
               clock in / out from outside the circle below.
             </span>
@@ -71,9 +71,9 @@ export function WorkspaceForm({ org }: { org: Organization }) {
       {error && <Alert tone="red">{error}</Alert>}
       {success && <Alert tone="green">Location settings saved.</Alert>}
 
-      <div className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-5">
+      <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5">
         <div className="flex items-center justify-between">
-          <h3 className="flex items-center gap-1.5 text-sm font-semibold text-zinc-800">
+          <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-800">
             <MapPin className="h-4 w-4" /> Work location
           </h3>
           <Button
@@ -97,7 +97,7 @@ export function WorkspaceForm({ org }: { org: Organization }) {
             setLng(ln)
           }}
         />
-        <p className="text-xs text-zinc-400">
+        <p className="text-xs text-slate-400">
           {lat != null && lng != null
             ? `Pin: ${lat.toFixed(5)}, ${lng.toFixed(5)}`
             : 'Click the map to drop a pin, or use your location.'}
@@ -113,7 +113,7 @@ export function WorkspaceForm({ org }: { org: Organization }) {
             step={10}
             value={radius}
             onChange={(e) => setRadius(Number(e.target.value))}
-            className="w-full accent-indigo-600"
+            className="w-full accent-blue-600"
           />
         </div>
 

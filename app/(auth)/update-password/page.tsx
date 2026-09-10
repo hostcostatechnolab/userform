@@ -48,10 +48,10 @@ export default function UpdatePasswordPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-1 text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
           Set a new password
         </h1>
-        <p className="text-sm text-zinc-500">Choose a strong password you&apos;ll remember.</p>
+        <p className="text-sm text-slate-500">Choose a strong password you&apos;ll remember.</p>
       </div>
 
       {errorMsg && <Alert tone="red">{errorMsg}</Alert>}
@@ -60,7 +60,7 @@ export default function UpdatePasswordPage() {
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <div className="relative">
-            <Lock className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-zinc-400" />
+            <Lock className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-slate-400" />
             <Input
               className="pl-11"
               type="password"
@@ -74,7 +74,7 @@ export default function UpdatePasswordPage() {
         <button
           type="submit"
           disabled={loading || done}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 py-3 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:opacity-70"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 py-3 text-sm font-semibold text-white shadow-sm shadow-blue-600/25 transition-all hover:from-blue-500 hover:to-blue-600 active:scale-[0.98] disabled:opacity-70"
         >
           {loading ? (
             <Loader2 className="h-5 w-5 animate-spin" />

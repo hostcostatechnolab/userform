@@ -306,7 +306,7 @@ export function FaceCaptureDialog({
       <div className="space-y-4">
         {mode === 'enroll' && (
           <div className="flex flex-col items-center gap-2">
-            <p className="text-center text-sm font-semibold text-zinc-900">
+            <p className="text-center text-sm font-semibold text-slate-900">
               {pose.label}
             </p>
             <div className="flex gap-1.5">
@@ -318,19 +318,19 @@ export function FaceCaptureDialog({
                     i < step
                       ? 'bg-emerald-500'
                       : i === step
-                        ? 'bg-zinc-900'
-                        : 'bg-zinc-200'
+                        ? 'bg-slate-900'
+                        : 'bg-slate-200'
                   )}
                 />
               ))}
             </div>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-slate-400">
               {step} of {totalSteps} captured
             </p>
           </div>
         )}
 
-        <div className="relative mx-auto aspect-square w-full max-w-xs overflow-hidden rounded-2xl bg-zinc-900">
+        <div className="relative mx-auto aspect-square w-full max-w-xs overflow-hidden rounded-2xl bg-slate-900">
           <video
             ref={videoRef}
             playsInline
@@ -338,7 +338,7 @@ export function FaceCaptureDialog({
             className="h-full w-full -scale-x-100 object-cover"
           />
           {phase === 'init' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-zinc-300">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-300">
               <Loader2 className="h-6 w-6 animate-spin" />
               <span className="text-xs">{status}</span>
             </div>
@@ -364,7 +364,7 @@ export function FaceCaptureDialog({
                 ? 'text-emerald-600'
                 : scan === 'nomatch'
                   ? 'text-red-600'
-                  : 'text-zinc-500'
+                  : 'text-slate-500'
             )}
           >
             {scanMessage}
@@ -402,7 +402,7 @@ export function FaceCaptureDialog({
               type="button"
               onClick={handleVerifyManual}
               disabled={phase !== 'ready'}
-              className="text-xs font-medium text-zinc-400 underline-offset-2 hover:text-zinc-600 hover:underline disabled:opacity-50"
+              className="text-xs font-medium text-slate-400 underline-offset-2 hover:text-slate-600 hover:underline disabled:opacity-50"
             >
               Verify manually
             </button>

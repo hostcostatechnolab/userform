@@ -104,10 +104,10 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   return (
     <div className="space-y-6">
       <div className="space-y-1 text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
           {isLogin ? 'Welcome back' : 'Create your account'}
         </h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-slate-500">
           {isLogin
             ? 'Sign in to keep tracking your time.'
             : 'Start tracking time in under a minute.'}
@@ -122,7 +122,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
           <>
             <div>
               <div className="relative">
-                <User className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-zinc-400" />
+                <User className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   className="pl-11"
                   placeholder="Full name"
@@ -133,7 +133,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             </div>
             <div>
               <div className="relative">
-                <Phone className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-zinc-400" />
+                <Phone className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   className="pl-11"
                   placeholder="Phone number"
@@ -147,7 +147,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
 
         <div>
           <div className="relative">
-            <Mail className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-zinc-400" />
+            <Mail className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-slate-400" />
             <Input
               className="pl-11"
               type="email"
@@ -161,7 +161,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
 
         <div>
           <div className="relative">
-            <Lock className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-zinc-400" />
+            <Lock className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-slate-400" />
             <Input
               className="pl-11"
               type="password"
@@ -177,7 +177,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
           <div className="flex justify-end">
             <Link
               href="/forgot-password"
-              className="text-xs font-medium text-zinc-500 hover:text-zinc-900"
+              className="text-xs font-medium text-slate-500 hover:text-slate-900"
             >
               Forgot password?
             </Link>
@@ -187,7 +187,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 py-3 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:opacity-70"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 py-3 text-sm font-semibold text-white shadow-sm shadow-blue-600/25 transition-all hover:from-blue-500 hover:to-blue-600 active:scale-[0.98] disabled:opacity-70"
         >
           {loading ? (
             <Loader2 className="h-5 w-5 animate-spin" />
@@ -200,11 +200,11 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
         </button>
       </form>
 
-      <p className="text-center text-sm text-zinc-600">
+      <p className="text-center text-sm text-slate-600">
         {isLogin ? "Don't have an account? " : 'Already have an account? '}
         <Link
           href={toggleHref}
-          className="font-semibold text-zinc-900 hover:underline"
+          className="font-semibold text-slate-900 hover:underline"
         >
           {isLogin ? 'Sign up' : 'Sign in'}
         </Link>

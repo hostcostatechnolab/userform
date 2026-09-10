@@ -91,7 +91,7 @@ export function GeofenceMap({ lat, lng, radiusM, onPick }: Props) {
   return (
     <div
       ref={containerRef}
-      className="h-72 w-full overflow-hidden rounded-xl border border-zinc-200"
+      className="h-72 w-full overflow-hidden rounded-xl border border-slate-200"
     />
   )
 }

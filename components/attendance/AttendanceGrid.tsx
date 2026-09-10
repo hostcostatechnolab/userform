@@ -30,11 +30,11 @@ export function AttendanceGrid({
 
   return (
     <>
-      <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white">
+      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
         <table className="w-full min-w-[720px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-zinc-200 bg-zinc-50 text-left">
-              <th className="sticky left-0 z-10 bg-zinc-50 px-4 py-2.5 font-semibold text-zinc-600">
+            <tr className="border-b border-slate-200 bg-slate-50 text-left">
+              <th className="sticky left-0 z-10 bg-slate-50 px-4 py-2.5 font-semibold text-slate-600">
                 Member
               </th>
               {days.map((iso) => {
@@ -45,27 +45,27 @@ export function AttendanceGrid({
                     key={iso}
                     className={cn(
                       'px-2 py-2.5 text-center font-semibold',
-                      key === todayKey ? 'text-zinc-900' : 'text-zinc-500'
+                      key === todayKey ? 'text-slate-900' : 'text-slate-500'
                     )}
                   >
                     <div>{DOW[d.getDay()]}</div>
-                    <div className="text-xs font-normal text-zinc-400">
+                    <div className="text-xs font-normal text-slate-400">
                       {d.getDate()}
                     </div>
                   </th>
                 )
               })}
-              <th className="px-3 py-2.5 text-right font-semibold text-zinc-600">
+              <th className="px-3 py-2.5 text-right font-semibold text-slate-600">
                 Total
               </th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.userId} className="border-b border-zinc-100 last:border-0">
-                <td className="sticky left-0 z-10 bg-white px-4 py-2 font-medium text-zinc-900">
+              <tr key={row.userId} className="border-b border-slate-100 last:border-0">
+                <td className="sticky left-0 z-10 bg-white px-4 py-2 font-medium text-slate-900">
                   {row.name}
-                  <span className="ml-2 text-xs font-normal text-zinc-400">
+                  <span className="ml-2 text-xs font-normal text-slate-400">
                     {row.presentDays}d
                   </span>
                 </td>
@@ -80,7 +80,7 @@ export function AttendanceGrid({
                         cell.status === 'absent' &&
                           'border-red-100 bg-red-50 hover:bg-red-100',
                         cell.status === 'off' &&
-                          'border-transparent bg-zinc-50 text-zinc-300 hover:bg-zinc-100'
+                          'border-transparent bg-slate-50 text-slate-300 hover:bg-slate-100'
                       )}
                     >
                       {cell.status === 'present' ? (
@@ -107,7 +107,7 @@ export function AttendanceGrid({
                     </button>
                   </td>
                 ))}
-                <td className="px-3 py-2 text-right font-semibold tabular-nums text-zinc-800">
+                <td className="px-3 py-2 text-right font-semibold tabular-nums text-slate-800">
                   {formatDuration(row.totalMs)}
                 </td>
               </tr>
@@ -116,7 +116,7 @@ export function AttendanceGrid({
         </table>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-3 text-xs text-zinc-500">
+      <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
         <span className="flex items-center gap-1.5">
           <Badge tone="green">Present</Badge> has clock records
         </span>

@@ -50,7 +50,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900">
         Dashboard
       </h1>
 
@@ -72,20 +72,20 @@ export default async function DashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardContent>
-            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
               Today
             </p>
-            <p className="mt-1 text-3xl font-bold tabular-nums text-zinc-900">
+            <p className="mt-1 text-3xl font-bold tabular-nums text-slate-900">
               {formatDuration(todayMs)}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent>
-            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
               This week
             </p>
-            <p className="mt-1 text-3xl font-bold tabular-nums text-zinc-900">
+            <p className="mt-1 text-3xl font-bold tabular-nums text-slate-900">
               {formatDuration(weekMs)}
             </p>
           </CardContent>
@@ -93,7 +93,7 @@ export default async function DashboardPage() {
       </div>
 
       <div>
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700">
+        <h2 className="mb-3 text-sm font-semibold text-slate-700">
           Today&apos;s entries
         </h2>
         <EntryList

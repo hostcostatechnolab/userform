@@ -49,10 +49,10 @@ export default async function AttendancePage({
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             Attendance
           </h1>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-slate-500">
             {formatDateRange(
               from.toISOString(),
               new Date(to.getTime() - 1).toISOString()
@@ -63,7 +63,7 @@ export default async function AttendancePage({
         <div className="flex items-center gap-2">
           <Link
             href={`/attendance?w=${offset - 1}`}
-            className="rounded-xl border border-zinc-200 bg-white p-2 text-zinc-600 hover:bg-zinc-50"
+            className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50"
             aria-label="Previous week"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -71,14 +71,14 @@ export default async function AttendancePage({
           {offset !== 0 && (
             <Link
               href="/attendance"
-              className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50"
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
             >
               This week
             </Link>
           )}
           <Link
             href={`/attendance?w=${offset + 1}`}
-            className="rounded-xl border border-zinc-200 bg-white p-2 text-zinc-600 hover:bg-zinc-50"
+            className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50"
             aria-label="Next week"
           >
             <ChevronRight className="h-4 w-4" />
@@ -87,10 +87,10 @@ export default async function AttendancePage({
       </div>
 
       <Card className="flex items-center justify-between p-5">
-        <span className="text-sm font-semibold text-zinc-500">
+        <span className="text-sm font-semibold text-slate-500">
           Team hours this week
         </span>
-        <span className="text-2xl font-bold tabular-nums text-zinc-900">
+        <span className="text-2xl font-bold tabular-nums text-slate-900">
           {formatDuration(orgTotal)}
         </span>
       </Card>

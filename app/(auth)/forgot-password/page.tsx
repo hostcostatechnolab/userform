@@ -48,14 +48,14 @@ export default function ForgotPasswordPage() {
       <div className="space-y-2">
         <Link
           href="/login"
-          className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900"
+          className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900"
         >
           <ArrowLeft className="h-4 w-4" /> Back to sign in
         </Link>
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
           Forgot password?
         </h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-slate-500">
           Enter your email and we&apos;ll send you a reset link.
         </p>
       </div>
@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <div className="relative">
-            <Mail className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-zinc-400" />
+            <Mail className="pointer-events-none absolute left-3.5 top-3 h-5 w-5 text-slate-400" />
             <Input
               className="pl-11"
               type="email"
@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 py-3 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:opacity-70"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 py-3 text-sm font-semibold text-white shadow-sm shadow-blue-600/25 transition-all hover:from-blue-500 hover:to-blue-600 active:scale-[0.98] disabled:opacity-70"
         >
           {loading ? (
             <Loader2 className="h-5 w-5 animate-spin" />

@@ -15,15 +15,23 @@ export function Sidebar({
   isSuperadmin?: boolean
 }) {
   const pathname = usePathname()
-  const items = NAV_ITEMS.filter((i) => !('managerOnly' in i && i.managerOnly) || isManager)
+  const items = NAV_ITEMS.filter(
+    (i) => !('managerOnly' in i && i.managerOnly) || isManager
+  )
 
   return (
-    <aside className="hidden w-60 shrink-0 flex-col border-r border-zinc-200 bg-white lg:flex">
-      <div className="flex h-16 items-center gap-2 border-b border-zinc-100 px-6 font-semibold">
-        <Clock className="h-5 w-5" />
-        {APP_NAME}
+    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col bg-navy text-slate-300 lg:flex">
+      {/* brand */}
+      <div className="flex h-16 items-center gap-2.5 px-6">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-b from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-600/30">
+          <Clock className="h-5 w-5" />
+        </span>
+        <span className="text-sm font-semibold tracking-tight text-white">
+          {APP_NAME}
+        </span>
       </div>
-      <nav className="flex-1 space-y-1 p-3">
+
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
         {items.map((item) => {
           const Icon = NAV_ICONS[item.icon]
           const active =
@@ -33,33 +41,45 @@ export function Sidebar({
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors',
+                'group relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors',
                 active
-                  ? 'bg-zinc-900 text-white'
-                  : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
+                  ? 'bg-white/10 text-white'
+                  : 'text-slate-400 hover:bg-white/5 hover:text-white'
               )}
             >
-              {Icon && <Icon className="h-4 w-4" />}
+              {active && (
+                <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-blue-400" />
+              )}
+              {Icon && (
+                <Icon
+                  className={cn(
+                    'h-5 w-5 shrink-0 transition-colors',
+                    active ? 'text-blue-300' : 'text-slate-500 group-hover:text-slate-300'
+                  )}
+                />
+              )}
               {item.label}
             </Link>
           )
         })}
+      </nav>
 
-        {isSuperadmin && (
+      {isSuperadmin && (
+        <div className="border-t border-white/10 p-3">
           <Link
             href="/admin"
             className={cn(
-              'mt-2 flex items-center gap-3 rounded-xl border border-dashed border-indigo-200 px-3 py-2 text-sm font-medium transition-colors',
+              'flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors',
               pathname.startsWith('/admin')
-                ? 'bg-indigo-600 text-white'
-                : 'text-indigo-700 hover:bg-indigo-50'
+                ? 'bg-blue-500/15 text-blue-200'
+                : 'text-slate-400 hover:bg-white/5 hover:text-blue-200'
             )}
           >
-            <Shield className="h-4 w-4" />
+            <Shield className="h-5 w-5 shrink-0" />
             Super Admin
           </Link>
-        )}
-      </nav>
+        </div>
+      )}
     </aside>
   )
 }

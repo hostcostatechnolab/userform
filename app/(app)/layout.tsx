@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
   const isSuperadmin = Boolean(profile?.is_superadmin)
 
   return (
-    <div className="flex min-h-screen bg-zinc-50">
+    <div className="flex min-h-screen">
       <Sidebar isManager={membership.isManager} isSuperadmin={isSuperadmin} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar
@@ -27,7 +27,7 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
           name={profile?.full_name ?? null}
           email={user.email ?? null}
         />
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 pb-24 sm:px-6 lg:pb-8">
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-28 sm:px-6 sm:py-8 lg:pb-10">
           {children}
         </main>
         <MobileNav isManager={membership.isManager} />

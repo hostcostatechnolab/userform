@@ -30,7 +30,7 @@ function dayAt(dayKey: string, hour: number) {
 function SelfieThumb({ url, label }: { url?: string; label: string }) {
   if (!url) {
     return (
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-[9px] font-medium text-zinc-300">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-[9px] font-medium text-slate-300">
         {label}
       </span>
     )
@@ -41,7 +41,7 @@ function SelfieThumb({ url, label }: { url?: string; label: string }) {
       <img
         src={url}
         alt={`Clock ${label}`}
-        className="h-9 w-9 rounded-lg object-cover ring-1 ring-zinc-200 transition-transform hover:scale-110"
+        className="h-9 w-9 rounded-lg object-cover ring-1 ring-slate-200 transition-transform hover:scale-110"
       />
     </a>
   )
@@ -151,7 +151,7 @@ export function AttendanceDayDialog({
           {entries.length === 0 ? (
             <EmptyState title="No clock records for this day" />
           ) : (
-            <ul className="divide-y divide-zinc-100 overflow-hidden rounded-xl border border-zinc-200">
+            <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200">
               {entries.map((e) => (
                 <li
                   key={e.id}
@@ -173,16 +173,16 @@ export function AttendanceDayDialog({
                     }
                     label="out"
                   />
-                  <span className="flex-1 tabular-nums text-zinc-800">
+                  <span className="flex-1 tabular-nums text-slate-800">
                     {formatTimeOfDay(e.started_at)} –{' '}
                     {e.ended_at ? formatTimeOfDay(e.ended_at) : 'running'}
                   </span>
-                  <span className="tabular-nums font-medium text-zinc-600">
+                  <span className="tabular-nums font-medium text-slate-600">
                     {formatDuration(entryDurationMs(e.started_at, e.ended_at))}
                   </span>
                   <button
                     onClick={() => openForm(e)}
-                    className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+                    className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                     aria-label="Edit"
                   >
                     <Pencil className="h-4 w-4" />
@@ -190,7 +190,7 @@ export function AttendanceDayDialog({
                   <button
                     onClick={() => remove(e.id)}
                     disabled={pending}
-                    className="rounded-lg p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                    className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                     aria-label="Delete"
                   >
                     <Trash2 className="h-4 w-4" />

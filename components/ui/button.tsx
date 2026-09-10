@@ -7,20 +7,23 @@ type Size = 'sm' | 'md' | 'lg' | 'icon'
 
 const VARIANTS: Record<Variant, string> = {
   primary:
-    'bg-zinc-900 text-white hover:bg-zinc-800 active:bg-zinc-900 disabled:bg-zinc-400',
+    'bg-gradient-to-b from-blue-600 to-blue-700 text-white shadow-sm shadow-blue-600/25 ' +
+    'hover:from-blue-500 hover:to-blue-600 active:from-blue-700 active:to-blue-800 ' +
+    'disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none',
   secondary:
-    'bg-zinc-100 text-zinc-900 hover:bg-zinc-200 disabled:text-zinc-400',
+    'bg-slate-100 text-slate-900 hover:bg-slate-200 disabled:text-slate-400',
   outline:
-    'border border-zinc-300 bg-white text-zinc-800 hover:bg-zinc-50 disabled:text-zinc-400',
-  ghost: 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900',
-  danger: 'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300',
+    'border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50 hover:text-slate-900 disabled:text-slate-400',
+  ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+  danger:
+    'bg-gradient-to-b from-red-500 to-red-600 text-white shadow-sm shadow-red-600/25 hover:from-red-500 hover:to-red-600 disabled:from-red-300 disabled:to-red-300',
 }
 
 const SIZES: Record<Size, string> = {
-  sm: 'h-8 px-3 text-xs gap-1.5',
-  md: 'h-10 px-4 text-sm gap-2',
-  lg: 'h-12 px-6 text-sm gap-2',
-  icon: 'h-9 w-9',
+  sm: 'h-8 px-3 text-xs gap-1.5 rounded-lg',
+  md: 'h-10 px-4 text-sm gap-2 rounded-xl',
+  lg: 'h-12 px-6 text-sm gap-2 rounded-xl',
+  icon: 'h-9 w-9 rounded-xl',
 }
 
 export interface ButtonProps
@@ -39,9 +42,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       disabled={disabled || loading}
       className={cn(
-        'inline-flex items-center justify-center rounded-xl font-medium transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2',
-        'disabled:cursor-not-allowed disabled:opacity-70',
+        'inline-flex select-none items-center justify-center font-medium transition-all duration-150 active:scale-[0.98]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white',
+        'disabled:cursor-not-allowed disabled:opacity-80 disabled:active:scale-100',
         VARIANTS[variant],
         SIZES[size],
         className

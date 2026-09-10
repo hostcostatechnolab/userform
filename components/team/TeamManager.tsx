@@ -50,11 +50,11 @@ export function TeamManager({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Team</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Team</h1>
 
       {/* Invite */}
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-zinc-700">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-700">
           <UserPlus className="h-4 w-4" /> Invite a member
         </h2>
         <form
@@ -103,11 +103,11 @@ export function TeamManager({
 
       {/* Members */}
       <div>
-        <h2 className="mb-2 text-sm font-semibold text-zinc-500">
+        <h2 className="mb-2 text-sm font-semibold text-slate-500">
           Members ({members.length})
         </h2>
-        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-          <ul className="divide-y divide-zinc-100">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <ul className="divide-y divide-slate-100">
             {members.map((m) => {
               const isOwner = m.user_id === ownerId
               const isSelf = m.user_id === currentUserId
@@ -116,18 +116,18 @@ export function TeamManager({
                   key={m.user_id}
                   className="flex items-center gap-3 px-4 py-3 text-sm"
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-900 text-xs font-semibold text-white">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
                     {initials(m.profile?.full_name)}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-zinc-900">
+                    <p className="truncate font-medium text-slate-900">
                       {m.profile?.full_name || 'Unnamed member'}
                       {isSelf && (
-                        <span className="ml-1 text-xs text-zinc-400">(you)</span>
+                        <span className="ml-1 text-xs text-slate-400">(you)</span>
                       )}
                     </p>
                     {m.profile?.phone_number && (
-                      <p className="truncate text-xs text-zinc-400">
+                      <p className="truncate text-xs text-slate-400">
                         {m.profile.phone_number}
                       </p>
                     )}
@@ -164,7 +164,7 @@ export function TeamManager({
                           onSuccess: () => router.refresh(),
                         })
                       }}
-                      className="rounded-lg p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600"
+                      className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
                       aria-label="Remove member"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -179,31 +179,31 @@ export function TeamManager({
 
       {/* Pending invites */}
       <div>
-        <h2 className="mb-2 text-sm font-semibold text-zinc-500">
+        <h2 className="mb-2 text-sm font-semibold text-slate-500">
           Pending invitations
         </h2>
         {invites.length === 0 ? (
           <EmptyState title="No pending invitations" />
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-            <ul className="divide-y divide-zinc-100">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            <ul className="divide-y divide-slate-100">
               {invites.map((inv) => (
                 <li
                   key={inv.id}
                   className="flex items-center gap-3 px-4 py-3 text-sm"
                 >
-                  <Mail className="h-4 w-4 text-zinc-400" />
+                  <Mail className="h-4 w-4 text-slate-400" />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-zinc-900">
+                    <p className="truncate font-medium text-slate-900">
                       {inv.email}
                     </p>
-                    <p className="text-xs text-zinc-400">
+                    <p className="text-xs text-slate-400">
                       {ROLE_LABELS[inv.role]}
                     </p>
                   </div>
                   <button
                     onClick={() => copyLink(inv.token)}
-                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100"
+                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
                   >
                     {copied === inv.token ? (
                       <>
@@ -221,7 +221,7 @@ export function TeamManager({
                         onSuccess: () => router.refresh(),
                       })
                     }
-                    className="rounded-lg p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600"
+                    className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
                     aria-label="Revoke invitation"
                   >
                     <Trash2 className="h-4 w-4" />

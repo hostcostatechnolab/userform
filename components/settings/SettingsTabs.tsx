@@ -14,7 +14,7 @@ export function SettingsTabs({ isManager }: { isManager: boolean }) {
   ]
 
   return (
-    <div className="flex gap-1 rounded-xl border border-zinc-200 bg-white p-0.5 text-sm">
+    <div className="flex gap-1 rounded-xl border border-slate-200 bg-white p-0.5 text-sm">
       {tabs.map((t) => (
         <Link
           key={t.href}
@@ -22,8 +22,8 @@ export function SettingsTabs({ isManager }: { isManager: boolean }) {
           className={cn(
             'rounded-lg px-3 py-1.5 font-medium',
             pathname === t.href
-              ? 'bg-zinc-900 text-white'
-              : 'text-zinc-600 hover:text-zinc-900'
+              ? 'bg-slate-900 text-white'
+              : 'text-slate-600 hover:text-slate-900'
           )}
         >
           {t.label}

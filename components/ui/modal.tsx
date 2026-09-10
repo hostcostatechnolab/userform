@@ -34,7 +34,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-900/40 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/50 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
     >
       <div
@@ -43,21 +43,23 @@ export function Modal({
         aria-label={title}
         onClick={(e) => e.stopPropagation()}
         className={cn(
-          'w-full max-w-lg rounded-t-3xl bg-white p-6 shadow-xl sm:rounded-2xl',
+          'animate-fade-in w-full max-w-lg rounded-t-3xl border border-slate-200/60 bg-white p-6 shadow-[0_8px_40px_-12px_rgba(15,23,42,0.4)] sm:rounded-3xl',
           'max-h-[90vh] overflow-y-auto',
           className
         )}
       >
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-zinc-900">{title}</h2>
+            <h2 className="text-lg font-semibold tracking-tight text-slate-900">
+              {title}
+            </h2>
             {description && (
-              <p className="mt-0.5 text-sm text-zinc-500">{description}</p>
+              <p className="mt-0.5 text-sm text-slate-500">{description}</p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+            className="-mr-1 -mt-1 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
             aria-label="Close"
           >
             <X className="h-5 w-5" />

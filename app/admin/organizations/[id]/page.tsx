@@ -29,32 +29,32 @@ export default async function AdminOrgDetailPage({
       <div>
         <Link
           href="/admin/organizations"
-          className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900"
+          className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900"
         >
           <ArrowLeft className="h-4 w-4" /> Organizations
         </Link>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight text-zinc-900">
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
           {org.name}
         </h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-slate-500">
           Created {formatDayLabel(org.created_at)} · {members.length} member(s)
         </p>
       </div>
 
       {/* Members */}
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-zinc-700">Members</h2>
-        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-          <ul className="divide-y divide-zinc-100">
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">Members</h2>
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <ul className="divide-y divide-slate-100">
             {members.map((m) => (
               <li
                 key={m.user_id}
                 className="flex items-center gap-3 px-4 py-2.5 text-sm"
               >
-                <span className="flex-1 font-medium text-zinc-900">
+                <span className="flex-1 font-medium text-slate-900">
                   {m.full_name || 'Unnamed'}
                   {m.email && (
-                    <span className="ml-2 text-xs font-normal text-zinc-400">
+                    <span className="ml-2 text-xs font-normal text-slate-400">
                       {m.email}
                     </span>
                   )}
@@ -71,42 +71,42 @@ export default async function AdminOrgDetailPage({
 
       {/* Recent time entries */}
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-zinc-700">
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">
           Recent time entries
-          <span className="ml-2 font-normal text-zinc-400">last 30 days</span>
+          <span className="ml-2 font-normal text-slate-400">last 30 days</span>
         </h2>
         {entries.length === 0 ? (
           <Card>
-            <CardContent className="text-sm text-zinc-500">None.</CardContent>
+            <CardContent className="text-sm text-slate-500">None.</CardContent>
           </Card>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white">
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
             <table className="w-full min-w-[560px] text-sm">
               <tbody>
                 {entries.map((e) => (
                   <tr
                     key={e.id}
-                    className="border-b border-zinc-100 last:border-0"
+                    className="border-b border-slate-100 last:border-0"
                   >
-                    <td className="px-4 py-2 text-zinc-500">
+                    <td className="px-4 py-2 text-slate-500">
                       {formatDayLabel(e.started_at)}
                     </td>
-                    <td className="px-4 py-2 tabular-nums text-zinc-800">
+                    <td className="px-4 py-2 tabular-nums text-slate-800">
                       {formatTimeOfDay(e.started_at)} –{' '}
                       {e.ended_at ? formatTimeOfDay(e.ended_at) : 'now'}
                     </td>
-                    <td className="px-4 py-2 text-zinc-600">
+                    <td className="px-4 py-2 text-slate-600">
                       {e.profile?.full_name ?? '—'}
                     </td>
                     <td className="px-4 py-2">
                       {e.project && (
-                        <span className="inline-flex items-center gap-1 text-zinc-500">
+                        <span className="inline-flex items-center gap-1 text-slate-500">
                           <ColorDot color={e.project.color} />
                           {e.project.name}
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-2 text-right font-medium tabular-nums text-zinc-700">
+                    <td className="px-4 py-2 text-right font-medium tabular-nums text-slate-700">
                       {formatDuration(
                         entryDurationMs(e.started_at, e.ended_at)
                       )}
@@ -121,9 +121,9 @@ export default async function AdminOrgDetailPage({
 
       {/* Desktop activity + screenshots */}
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-zinc-700">
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">
           Desktop activity &amp; screenshots
-          <span className="ml-2 font-normal text-zinc-400">last 30 days</span>
+          <span className="ml-2 font-normal text-slate-400">last 30 days</span>
         </h2>
         <ActivityView
           sessions={sessions}

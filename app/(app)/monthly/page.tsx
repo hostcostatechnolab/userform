@@ -41,16 +41,16 @@ export default async function MonthlyTimesheetPage({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             Monthly Timesheet
           </h1>
-          <p className="text-sm text-zinc-500">{sheet.monthLabel}</p>
+          <p className="text-sm text-slate-500">{sheet.monthLabel}</p>
         </div>
 
         <div className="flex items-center gap-2">
           <Link
             href={`/monthly?m=${offset - 1}`}
-            className="rounded-xl border border-zinc-200 bg-white p-2 text-zinc-600 hover:bg-zinc-50"
+            className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50"
             aria-label="Previous month"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -58,14 +58,14 @@ export default async function MonthlyTimesheetPage({
           {offset !== 0 && (
             <Link
               href="/monthly"
-              className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50"
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
             >
               This month
             </Link>
           )}
           <Link
             href={`/monthly?m=${offset + 1}`}
-            className="rounded-xl border border-zinc-200 bg-white p-2 text-zinc-600 hover:bg-zinc-50"
+            className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50"
             aria-label="Next month"
           >
             <ChevronRight className="h-4 w-4" />
@@ -74,10 +74,10 @@ export default async function MonthlyTimesheetPage({
       </div>
 
       <Card className="flex items-center justify-between p-5">
-        <span className="text-sm font-semibold text-zinc-500">
+        <span className="text-sm font-semibold text-slate-500">
           Team hours · {sheet.monthLabel}
         </span>
-        <span className="text-2xl font-bold tabular-nums text-zinc-900">
+        <span className="text-2xl font-bold tabular-nums text-slate-900">
           {formatDuration(sheet.grandTotalMs)}
         </span>
       </Card>

@@ -72,14 +72,14 @@ export function UsersTable({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
           Users
-          <span className="ml-2 text-sm font-normal text-zinc-400">
+          <span className="ml-2 text-sm font-normal text-slate-400">
             {users.length}
           </span>
         </h1>
         <div className="relative w-64">
-          <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
+          <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -91,10 +91,10 @@ export function UsersTable({
 
       {error && <Alert tone="red">{error}</Alert>}
 
-      <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white">
+      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
         <table className="w-full min-w-[720px] text-sm">
           <thead>
-            <tr className="border-b border-zinc-200 bg-zinc-50 text-left text-zinc-600">
+            <tr className="border-b border-slate-200 bg-slate-50 text-left text-slate-600">
               <th className="px-4 py-2.5 font-semibold">User</th>
               <th className="px-4 py-2.5 font-semibold">Organizations</th>
               <th className="px-4 py-2.5 font-semibold">Joined</th>
@@ -108,29 +108,29 @@ export function UsersTable({
               return (
                 <tr
                   key={u.id}
-                  className="border-b border-zinc-100 last:border-0"
+                  className="border-b border-slate-100 last:border-0"
                 >
                   <td className="px-4 py-2.5">
-                    <div className="flex items-center gap-1.5 font-medium text-zinc-900">
+                    <div className="flex items-center gap-1.5 font-medium text-slate-900">
                       {u.full_name || 'Unnamed'}
                       {u.is_superadmin && (
-                        <ShieldCheck className="h-3.5 w-3.5 text-indigo-600" />
+                        <ShieldCheck className="h-3.5 w-3.5 text-blue-600" />
                       )}
                     </div>
-                    <div className="text-xs text-zinc-400">{u.email}</div>
+                    <div className="text-xs text-slate-400">{u.email}</div>
                   </td>
-                  <td className="px-4 py-2.5 text-zinc-600">
+                  <td className="px-4 py-2.5 text-slate-600">
                     {u.orgs.length === 0 ? (
-                      <span className="text-zinc-400">—</span>
+                      <span className="text-slate-400">—</span>
                     ) : (
                       <div className="flex flex-wrap gap-1">
                         {u.orgs.map((o) => (
                           <span
                             key={o.id}
-                            className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs"
+                            className="rounded-full bg-slate-100 px-2 py-0.5 text-xs"
                           >
                             {o.name}
-                            <span className="ml-1 text-zinc-400">
+                            <span className="ml-1 text-slate-400">
                               {ROLE_LABELS[o.role]}
                             </span>
                           </span>
@@ -138,7 +138,7 @@ export function UsersTable({
                       </div>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 text-zinc-500">
+                  <td className="px-4 py-2.5 text-slate-500">
                     {formatDayLabel(u.created_at)}
                   </td>
                   <td className="px-4 py-2.5">
@@ -150,7 +150,7 @@ export function UsersTable({
                   </td>
                   <td className="px-4 py-2.5 text-right">
                     {u.is_superadmin || isSelf ? (
-                      <span className="text-xs text-zinc-300">—</span>
+                      <span className="text-xs text-slate-300">—</span>
                     ) : (
                       <div className="flex items-center justify-end gap-1.5">
                         <Button
@@ -165,7 +165,7 @@ export function UsersTable({
                           onClick={() => remove(u)}
                           disabled={pending && busyId === u.id}
                           title="Delete permanently"
-                          className="rounded-lg p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>

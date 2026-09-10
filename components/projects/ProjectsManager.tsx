@@ -44,7 +44,7 @@ export function ProjectsManager({
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
           Projects &amp; Tasks
         </h1>
         <Button
@@ -86,24 +86,24 @@ export function ProjectsManager({
 
       {archived.length > 0 && (
         <div>
-          <h2 className="mb-2 text-sm font-semibold text-zinc-500">
+          <h2 className="mb-2 text-sm font-semibold text-slate-500">
             Archived projects
           </h2>
-          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-            <ul className="divide-y divide-zinc-100">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            <ul className="divide-y divide-slate-100">
               {archived.map((p) => (
                 <li
                   key={p.id}
                   className="flex items-center gap-3 px-4 py-3 text-sm"
                 >
                   <ColorDot color={p.color} />
-                  <span className="flex-1 font-medium text-zinc-500">
+                  <span className="flex-1 font-medium text-slate-500">
                     {p.name}
                   </span>
                   <Badge tone="zinc">Archived</Badge>
                   <button
                     onClick={() => toggleArchived(p)}
-                    className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+                    className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                     aria-label="Unarchive"
                   >
                     <ArchiveRestore className="h-4 w-4" />
@@ -166,28 +166,28 @@ function ProjectCard({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <div className="flex items-center gap-3 px-4 py-3 text-sm">
         <ColorDot color={project.color} />
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="flex flex-1 items-center gap-2 text-left font-medium text-zinc-900"
+          className="flex flex-1 items-center gap-2 text-left font-medium text-slate-900"
         >
           {project.name}
-          <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-500">
+          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
             <ListChecks className="h-3 w-3" />
             {activeTasks.length}
           </span>
           <ChevronDown
             className={cn(
-              'h-4 w-4 text-zinc-400 transition-transform',
+              'h-4 w-4 text-slate-400 transition-transform',
               expanded && 'rotate-180'
             )}
           />
         </button>
         <button
           onClick={onEdit}
-          className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
           aria-label="Edit project"
         >
           <Pencil className="h-4 w-4" />
@@ -195,7 +195,7 @@ function ProjectCard({
         <button
           onClick={onArchive}
           disabled={archiveDisabled}
-          className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 disabled:opacity-50"
+          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
           aria-label="Archive project"
         >
           <Archive className="h-4 w-4" />
@@ -203,7 +203,7 @@ function ProjectCard({
       </div>
 
       {expanded && (
-        <div className="border-t border-zinc-100 bg-zinc-50/60 p-4">
+        <div className="border-t border-slate-100 bg-slate-50/60 p-4">
           {error && (
             <div className="mb-3">
               <Alert tone="red">{error}</Alert>
@@ -211,19 +211,19 @@ function ProjectCard({
           )}
 
           {activeTasks.length === 0 && archivedTasks.length === 0 ? (
-            <p className="mb-3 text-sm text-zinc-500">No tasks yet.</p>
+            <p className="mb-3 text-sm text-slate-500">No tasks yet.</p>
           ) : (
-            <ul className="mb-3 divide-y divide-zinc-100 overflow-hidden rounded-xl border border-zinc-200 bg-white">
+            <ul className="mb-3 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white">
               {activeTasks.map((t) => (
                 <li
                   key={t.id}
                   className="flex items-center gap-2 px-3 py-2 text-sm"
                 >
-                  <span className="flex-1 text-zinc-800">{t.name}</span>
+                  <span className="flex-1 text-slate-800">{t.name}</span>
                   <button
                     onClick={() => toggleTask(t)}
                     disabled={pending}
-                    className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 disabled:opacity-50"
+                    className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
                     aria-label="Archive task"
                   >
                     <Archive className="h-3.5 w-3.5" />
@@ -235,13 +235,13 @@ function ProjectCard({
                   key={t.id}
                   className="flex items-center gap-2 px-3 py-2 text-sm"
                 >
-                  <span className="flex-1 text-zinc-400 line-through">
+                  <span className="flex-1 text-slate-400 line-through">
                     {t.name}
                   </span>
                   <button
                     onClick={() => toggleTask(t)}
                     disabled={pending}
-                    className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 disabled:opacity-50"
+                    className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
                     aria-label="Unarchive task"
                   >
                     <ArchiveRestore className="h-3.5 w-3.5" />

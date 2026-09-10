@@ -2,9 +2,9 @@ import { forwardRef } from 'react'
 import { cn } from '@/lib/utils'
 
 const control =
-  'w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-sm text-zinc-900 ' +
-  'placeholder:text-zinc-400 transition-colors focus:border-zinc-900 focus:bg-white ' +
-  'focus:outline-none focus:ring-2 focus:ring-zinc-900/10 disabled:opacity-60'
+  'w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3.5 py-2.5 text-sm text-slate-900 ' +
+  'placeholder:text-slate-400 transition-colors focus:border-blue-500 focus:bg-white ' +
+  'focus:outline-none focus:ring-4 focus:ring-blue-500/15 disabled:opacity-60'
 
 export const Input = forwardRef<
   HTMLInputElement,
@@ -41,7 +41,7 @@ export function Label({
   return (
     <label
       className={cn(
-        'mb-1.5 block text-xs font-semibold uppercase tracking-wide text-zinc-500',
+        'mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500',
         className
       )}
       {...props}
