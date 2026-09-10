@@ -52,6 +52,19 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable__...
 
 ## Timeline
 
+### 2026-09-10 — Session 4 (cont.) — Live auto-verify face scan
+
+Clock in/out `FaceCaptureDialog` (verify mode only) now scans continuously
+instead of a Capture button:
+- a `setTimeout` loop (~450 ms) runs `detectSingleDescriptor` + `bestDistance`
+- ring turns **green** on match / **red** on a non-matching face / neutral while
+  searching; a status line echoes it
+- auto-fires `onCapture` after the match holds for `REQUIRED_STREAK` (2) ticks
+  (~1 s); overlapping ticks guarded by `tickingRef`, single-shot by `doneRef`
+- a small "Verify manually" text button remains as a fallback
+- enrollment unchanged (still the 5-pose button flow)
+- no SQL / no other files.
+
 ### 2026-09-10 — Session 4 (cont.) — Fix: managers couldn't add an entry for a member
 
 `Add entry → Team member` threw `new row violates row-level security policy for
@@ -461,7 +474,7 @@ components/
   auth/       AuthForm
   shell/      Sidebar, Topbar, OrgSwitcher, UserMenu, MobileNav, nav-icons
   clock/      ClockCard (in/out toggle; blocks until Face ID enrolled; opens FaceCaptureDialog), LiveTimer
-  face/       FaceCaptureDialog (camera + detect + match), FaceEnrollCard (settings/profile)
+  face/       FaceCaptureDialog (enroll = 5-pose buttons; verify = live auto-scan, green/red ring), FaceEnrollCard (settings/profile)
   attendance/ AttendanceGrid, AttendanceDayDialog (shows in/out selfie thumbnails)
   timesheets/ MonthlyHeatmap (reuses AttendanceDayDialog)
   entries/    EntryList, EntryFormDialog

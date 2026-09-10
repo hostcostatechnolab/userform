@@ -5,7 +5,6 @@ import {
   Camera,
   Loader2,
   RefreshCw,
-  ShieldCheck,
   ShieldAlert,
   Check,
 } from 'lucide-react'
@@ -25,6 +24,11 @@ import {
 } from '@/lib/face'
 
 type Phase = 'init' | 'ready' | 'busy' | 'blocked'
+type ScanState = 'searching' | 'match' | 'nomatch'
+
+/** Live-scan cadence and how long a match must hold before auto-verifying. */
+const SCAN_INTERVAL_MS = 450
+const REQUIRED_STREAK = 2
 
 export type CaptureResult =
   | { kind: 'enroll'; descriptors: number[][]; blob: Blob }
@@ -51,25 +55,121 @@ export function FaceCaptureDialog({
   const samplesRef = useRef<number[][]>([])
   const frontalBlobRef = useRef<Blob | null>(null)
 
+  // live-scan state
+  const scanTimerRef = useRef<number | null>(null)
+  const streakRef = useRef(0)
+  const doneRef = useRef(false)
+  const tickingRef = useRef(false)
+
   const [phase, setPhase] = useState<Phase>('init')
   const [status, setStatus] = useState('Loading face models…')
   const [error, setError] = useState<string | null>(null)
   const [step, setStep] = useState(0) // enroll pose index
+  const [scan, setScan] = useState<ScanState>('searching')
 
   const totalSteps = ENROLL_POSES.length
+  const verifySamples = mode === 'verify' ? toSamples(reference) : []
 
   const stopCamera = useCallback(() => {
+    if (scanTimerRef.current != null) {
+      window.clearTimeout(scanTimerRef.current)
+      scanTimerRef.current = null
+    }
     streamRef.current?.getTracks().forEach((t) => t.stop())
     streamRef.current = null
     if (videoRef.current) videoRef.current.srcObject = null
   }, [])
 
+  const finishVerify = useCallback(
+    async (descriptor: number[], distance: number) => {
+      if (doneRef.current) return
+      doneRef.current = true
+      if (scanTimerRef.current != null) {
+        window.clearTimeout(scanTimerRef.current)
+        scanTimerRef.current = null
+      }
+      setPhase('busy')
+      setStatus('Verified — saving…')
+      try {
+        const video = videoRef.current!
+        const blob = await captureJpeg(video)
+        await onCapture({ kind: 'verify', descriptor, blob, distance })
+        stopCamera()
+      } catch (e) {
+        doneRef.current = false
+        setPhase('ready')
+        setError(e instanceof Error ? e.message : 'Capture failed. Try again.')
+      }
+    },
+    [onCapture, stopCamera]
+  )
+
+  // --- verify: continuous scan loop ------------------------------------
+  const runScanTick = useCallback(async () => {
+    if (
+      doneRef.current ||
+      tickingRef.current ||
+      phase !== 'ready' ||
+      !videoRef.current
+    ) {
+      return
+    }
+    tickingRef.current = true
+    try {
+      const { descriptor } = await detectSingleDescriptor(videoRef.current)
+      if (doneRef.current) return
+      const distance = bestDistance(verifySamples, descriptor)
+      if (isMatch(distance)) {
+        setScan('match')
+        streakRef.current += 1
+        if (streakRef.current >= REQUIRED_STREAK) {
+          await finishVerify(descriptor, distance)
+          return
+        }
+      } else {
+        setScan('nomatch')
+        streakRef.current = 0
+      }
+    } catch {
+      // NoFaceError / MultipleFacesError / transient
+      setScan('searching')
+      streakRef.current = 0
+    } finally {
+      tickingRef.current = false
+      if (!doneRef.current && phase === 'ready') {
+        scanTimerRef.current = window.setTimeout(runScanTick, SCAN_INTERVAL_MS)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, finishVerify])
+
+  useEffect(() => {
+    if (mode !== 'verify' || phase !== 'ready' || doneRef.current) return
+    if (verifySamples.length === 0) {
+      setError('No enrolled face on file. Set up Face ID first.')
+      return
+    }
+    streakRef.current = 0
+    scanTimerRef.current = window.setTimeout(runScanTick, 300)
+    return () => {
+      if (scanTimerRef.current != null) {
+        window.clearTimeout(scanTimerRef.current)
+        scanTimerRef.current = null
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, phase])
+
+  // --- camera + models bootstrap ----------------------------------
   useEffect(() => {
     if (!open) return
     let cancelled = false
     samplesRef.current = []
     frontalBlobRef.current = null
+    doneRef.current = false
+    streakRef.current = 0
     setStep(0)
+    setScan('searching')
 
     ;(async () => {
       setPhase('init')
@@ -103,9 +203,7 @@ export function FaceCaptureDialog({
         } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
           setError('No camera found on this device.')
         } else {
-          setError(
-            e instanceof Error ? e.message : 'Could not start the camera.'
-          )
+          setError(e instanceof Error ? e.message : 'Could not start the camera.')
         }
       }
     })()
@@ -116,32 +214,24 @@ export function FaceCaptureDialog({
     }
   }, [open, stopCamera])
 
-  async function handleVerify() {
+  // --- manual fallbacks -------------------------------------------
+  async function handleVerifyManual() {
     const video = videoRef.current
     if (!video) return
     setPhase('busy')
     setError(null)
     setStatus('Checking your face…')
     try {
-      const samples = toSamples(reference)
-      if (samples.length === 0) {
-        throw new Error('No enrolled face on file. Set up Face ID first.')
-      }
       const { descriptor } = await detectSingleDescriptor(video)
-      const distance = bestDistance(samples, descriptor)
+      const distance = bestDistance(verifySamples, descriptor)
       if (!isMatch(distance)) {
         setPhase('ready')
         setError(
-          `Face didn't match (score ${distance.toFixed(
-            2
-          )}, needs ≤ ${MATCH_THRESHOLD}). Face the camera in good light and try again.`
+          `Face didn't match (score ${distance.toFixed(2)}, needs ≤ ${MATCH_THRESHOLD}).`
         )
         return
       }
-      const blob = await captureJpeg(video)
-      setStatus('Saving…')
-      await onCapture({ kind: 'verify', descriptor, blob, distance })
-      stopCamera()
+      await finishVerify(descriptor, distance)
     } catch (e) {
       setPhase('ready')
       setError(e instanceof Error ? e.message : 'Capture failed. Try again.')
@@ -182,8 +272,22 @@ export function FaceCaptureDialog({
     }
   }
 
-  const capture = mode === 'verify' ? handleVerify : handleEnrollStep
   const pose = ENROLL_POSES[Math.min(step, totalSteps - 1)]
+  const ringClass =
+    mode === 'verify' && phase === 'ready'
+      ? scan === 'match'
+        ? 'border-emerald-400 shadow-[0_0_30px_rgba(52,211,153,0.5)]'
+        : scan === 'nomatch'
+          ? 'border-red-400'
+          : 'border-white/60'
+      : 'border-white/40'
+
+  const scanMessage =
+    scan === 'match'
+      ? 'Matched — hold still…'
+      : scan === 'nomatch'
+        ? 'That doesn’t match your Face ID'
+        : 'Looking for your face…'
 
   return (
     <Modal
@@ -195,7 +299,7 @@ export function FaceCaptureDialog({
       title={title}
       description={
         mode === 'verify'
-          ? 'Look at the camera to confirm it’s you.'
+          ? 'Look at the camera — it verifies automatically.'
           : 'Capture your face from a few angles so it recognises you reliably.'
       }
     >
@@ -210,7 +314,7 @@ export function FaceCaptureDialog({
                 <span
                   key={p.key}
                   className={cn(
-                    'flex h-2.5 w-2.5 items-center justify-center rounded-full',
+                    'h-2.5 w-2.5 rounded-full',
                     i < step
                       ? 'bg-emerald-500'
                       : i === step
@@ -244,8 +348,28 @@ export function FaceCaptureDialog({
               <Loader2 className="h-6 w-6 animate-spin" />
             </div>
           )}
-          <div className="pointer-events-none absolute inset-6 rounded-full border-2 border-white/40" />
+          <div
+            className={cn(
+              'pointer-events-none absolute inset-6 rounded-full border-4 transition-colors duration-200',
+              ringClass
+            )}
+          />
         </div>
+
+        {mode === 'verify' && phase === 'ready' && !error && (
+          <p
+            className={cn(
+              'text-center text-sm font-medium',
+              scan === 'match'
+                ? 'text-emerald-600'
+                : scan === 'nomatch'
+                  ? 'text-red-600'
+                  : 'text-zinc-500'
+            )}
+          >
+            {scanMessage}
+          </p>
+        )}
 
         {error && (
           <Alert tone="red">
@@ -256,7 +380,7 @@ export function FaceCaptureDialog({
           </Alert>
         )}
 
-        <div className="flex justify-end gap-2">
+        <div className="flex items-center justify-between gap-2">
           <Button
             type="button"
             variant="secondary"
@@ -267,24 +391,29 @@ export function FaceCaptureDialog({
           >
             Cancel
           </Button>
+
           {phase === 'blocked' ? (
             <Button type="button" onClick={() => window.location.reload()}>
               <RefreshCw className="h-4 w-4" />
               Retry
             </Button>
+          ) : mode === 'verify' ? (
+            <button
+              type="button"
+              onClick={handleVerifyManual}
+              disabled={phase !== 'ready'}
+              className="text-xs font-medium text-zinc-400 underline-offset-2 hover:text-zinc-600 hover:underline disabled:opacity-50"
+            >
+              Verify manually
+            </button>
           ) : (
             <Button
               type="button"
-              onClick={capture}
+              onClick={handleEnrollStep}
               loading={phase === 'busy'}
               disabled={phase !== 'ready'}
             >
-              {mode === 'verify' ? (
-                <>
-                  <ShieldCheck className="h-4 w-4" />
-                  Verify &amp; continue
-                </>
-              ) : step + 1 >= totalSteps ? (
+              {step + 1 >= totalSteps ? (
                 <>
                   <Check className="h-4 w-4" />
                   Capture &amp; finish
