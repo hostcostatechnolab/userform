@@ -39,6 +39,9 @@ paste and **Run** each file, in order:
    `organizations.geofence_*` (one work location + radius, set at
    `/settings/workspace`) and per-punch coordinates on `time_entries`; the web
    clock hard-blocks outside the circle
+10. [`migrations/0010_manager_insert_entries.sql`](migrations/0010_manager_insert_entries.sql) —
+    fixes `time_entries` insert RLS so a manager can add a manual entry **for a
+    member** (previously only `user_id = auth.uid()` passed)
 
 Each script is idempotent-ish (`if not exists` / `create or replace` /
 `drop policy if exists` / `add column if not exists`), so re-running is safe.

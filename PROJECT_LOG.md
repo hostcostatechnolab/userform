@@ -26,6 +26,7 @@ paste and run each file:
 7. [`supabase/migrations/0007_admin_delete_user.sql`](supabase/migrations/0007_admin_delete_user.sql) — `admin_delete_user(id)` RPC (super admin permanently deletes an account; blocked if they own an org) **(run this)**
 8. [`supabase/migrations/0008_fix_profiles_cascade.sql`](supabase/migrations/0008_fix_profiles_cascade.sql) — repair `profiles_id_fkey` to `ON DELETE CASCADE` (the old table pre-dated 0001) so account deletion actually works **(run this)**
 9. [`supabase/migrations/0009_geofence.sql`](supabase/migrations/0009_geofence.sql) — `organizations.geofence_*` columns + per-punch `clock_in/out_lat/lng/accuracy_m` on `time_entries` **(run this)**
+10. [`supabase/migrations/0010_manager_insert_entries.sql`](supabase/migrations/0010_manager_insert_entries.sql) — fix `time_entries` insert RLS so managers can add an entry for a member (was `user_id = auth.uid()` only) **(run this)**
 
 Grant yourself super admin after 0005:
 `update public.profiles set is_superadmin = true where email = 'you@example.com';`
@@ -50,6 +51,15 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable__...
 ---
 
 ## Timeline
+
+### 2026-09-10 — Session 4 (cont.) — Fix: managers couldn't add an entry for a member
+
+`Add entry → Team member` threw `new row violates row-level security policy for
+table "time_entries"`. The `entries: insert own` policy only allowed
+`user_id = auth.uid()`. `0010_manager_insert_entries.sql` replaces it: insert is
+OK for your own row, or when you're a manager of the org and the target user is a
+member of that org (still gated by `is_active()`). No app change —
+`addManualEntryAction` already `assertManager`s before targeting another user.
 
 ### 2026-09-10 — Session 4 (cont.) — Multi-angle face enrollment
 
