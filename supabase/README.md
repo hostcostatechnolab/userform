@@ -29,6 +29,9 @@ paste and **Run** each file, in order:
    `invitation_preview(token)` RPC + an invited-email SELECT policy so the
    `/onboarding/invite/<token>` link works for people who aren't signed in (or
    aren't managers) yet
+7. [`migrations/0007_admin_delete_user.sql`](migrations/0007_admin_delete_user.sql) —
+   `admin_delete_user(id)` RPC letting a super admin permanently delete an
+   account (cascades all its data; blocked while the user still owns an org)
 
 Each script is idempotent-ish (`if not exists` / `create or replace` /
 `drop policy if exists` / `add column if not exists`), so re-running is safe.

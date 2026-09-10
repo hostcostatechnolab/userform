@@ -48,3 +48,31 @@ export async function setUserDeactivatedAction(
     return fail(toMessage(e))
   }
 }
+
+/** Super-admin only: permanently delete an account (via SECURITY DEFINER RPC). */
+export async function deleteUserAction(
+  userId: string
+): Promise<ActionResult> {
+  try {
+    if (!z.string().uuid().safeParse(userId).success) {
+      return fail('Invalid user')
+    }
+
+    const viewer = await getViewer()
+    if (!viewer?.is_superadmin) return fail('Not authorized')
+    if (userId === viewer.id) return fail("You can't delete your own account")
+
+    const supabase = await createClient()
+    const { error } = await supabase.rpc('admin_delete_user', {
+      p_user_id: userId,
+    })
+    if (error) return fail(toMessage(error))
+
+    revalidatePath('/admin/users')
+    revalidatePath('/admin')
+    revalidatePath('/admin/organizations')
+    return ok()
+  } catch (e) {
+    return fail(toMessage(e))
+  }
+}

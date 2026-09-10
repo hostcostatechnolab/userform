@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, ShieldCheck } from 'lucide-react'
-import { setUserDeactivatedAction } from '@/lib/actions/admin'
+import { Search, ShieldCheck, Trash2 } from 'lucide-react'
+import { setUserDeactivatedAction, deleteUserAction } from '@/lib/actions/admin'
 import { useAction } from '@/components/ui/use-action'
 import { Input } from '@/components/ui/field'
 import { Button } from '@/components/ui/button'
@@ -44,6 +44,24 @@ export function UsersTable({
       return
     setBusyId(u.id)
     run(() => setUserDeactivatedAction(u.id, deactivate), {
+      onSuccess: () => {
+        setBusyId(null)
+        router.refresh()
+      },
+    })
+  }
+
+  function remove(u: AdminUserRow) {
+    const typed = window.prompt(
+      `Permanently delete this account and ALL its data. This cannot be undone.\n\nType the email to confirm:\n${u.email ?? ''}`
+    )
+    if (typed == null) return
+    if (typed.trim().toLowerCase() !== (u.email ?? '').toLowerCase()) {
+      alert('That did not match the email — nothing was deleted.')
+      return
+    }
+    setBusyId(u.id)
+    run(() => deleteUserAction(u.id), {
       onSuccess: () => {
         setBusyId(null)
         router.refresh()
@@ -134,14 +152,24 @@ export function UsersTable({
                     {u.is_superadmin || isSelf ? (
                       <span className="text-xs text-zinc-300">—</span>
                     ) : (
-                      <Button
-                        size="sm"
-                        variant={u.deactivated_at ? 'secondary' : 'danger'}
-                        loading={pending && busyId === u.id}
-                        onClick={() => toggle(u)}
-                      >
-                        {u.deactivated_at ? 'Reactivate' : 'Deactivate'}
-                      </Button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <Button
+                          size="sm"
+                          variant={u.deactivated_at ? 'secondary' : 'danger'}
+                          loading={pending && busyId === u.id}
+                          onClick={() => toggle(u)}
+                        >
+                          {u.deactivated_at ? 'Reactivate' : 'Deactivate'}
+                        </Button>
+                        <button
+                          onClick={() => remove(u)}
+                          disabled={pending && busyId === u.id}
+                          title="Delete permanently"
+                          className="rounded-lg p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>

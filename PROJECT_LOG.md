@@ -23,6 +23,7 @@ paste and run each file:
 4. [`supabase/migrations/0004_tasks_and_activity.sql`](supabase/migrations/0004_tasks_and_activity.sql) — `tasks`, `activity_sessions`, `screenshots` + `activity-screenshots` bucket **(run this)**
 5. [`supabase/migrations/0005_superadmin.sql`](supabase/migrations/0005_superadmin.sql) — `profiles.is_superadmin` / `deactivated_at` / `email`, cross-org RLS grants, deactivated-write blocks **(run this)**
 6. [`supabase/migrations/0006_invitation_preview.sql`](supabase/migrations/0006_invitation_preview.sql) — `invitation_preview(token)` RPC + invited-email read policy so the invite link works for logged-out / non-manager users **(run this)**
+7. [`supabase/migrations/0007_admin_delete_user.sql`](supabase/migrations/0007_admin_delete_user.sql) — `admin_delete_user(id)` RPC (super admin permanently deletes an account; blocked if they own an org) **(run this)**
 
 Grant yourself super admin after 0005:
 `update public.profiles set is_superadmin = true where email = 'you@example.com';`
@@ -47,6 +48,17 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable__...
 ---
 
 ## Timeline
+
+### 2026-09-10 — Session 4 (cont.) — Super Admin: permanent account delete
+
+- SQL `0007_admin_delete_user.sql`: `admin_delete_user(p_user_id)` SECURITY
+  DEFINER RPC — checks `is_superadmin()`, not self, not another superadmin, and
+  that the target owns no organization (`organizations.owner_id` is ON DELETE
+  RESTRICT), then `delete from auth.users` (profiles / org_members / time_entries
+  / activity_sessions / screenshots / invitations all cascade). Storage objects
+  are left orphaned — noted.
+- `lib/actions/admin.ts` → `deleteUserAction`; `UsersTable` gains a trash button
+  that requires typing the exact email to confirm.
 
 ### 2026-09-10 — Session 4 (cont.) — Fix invitation link for new users
 
@@ -368,7 +380,7 @@ lib/
     face.ts                  enrollFaceAction, clearFaceAction
     tasks.ts                 createTaskAction, setTaskArchivedAction
     activity.ts              loadSessionScreenshotsAction
-    admin.ts                 setUserDeactivatedAction (superadmin only)
+    admin.ts                 setUserDeactivatedAction, deleteUserAction (superadmin only)
     org.ts                   createOrganization, switchOrganization, invite/revoke, updateMemberRole, removeMember, acceptInvitation
     time.ts                  clockIn/clockOut (now require {photoPath, faceScore}), addManualEntry, updateEntry, deleteEntry
     projects.ts              createProject, updateProject, setProjectArchived
