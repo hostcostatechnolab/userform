@@ -25,23 +25,28 @@ export function ActivityView({
   sessions,
   isManager,
   scope,
+  embedded = false,
 }: {
   sessions: ActivitySessionDetailed[]
   isManager: boolean
   scope: 'me' | 'all'
+  /** When rendered inside another page (e.g. admin org detail) hide the header. */
+  embedded?: boolean
 }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
-            Activity &amp; Screenshots
-          </h1>
-          <p className="text-sm text-zinc-500">
-            Desktop tracker sessions · last 14 days
-          </p>
-        </div>
-        {isManager && (
+        {!embedded && (
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+              Activity &amp; Screenshots
+            </h1>
+            <p className="text-sm text-zinc-500">
+              Desktop tracker sessions · last 14 days
+            </p>
+          </div>
+        )}
+        {isManager && !embedded && (
           <div className="flex rounded-xl border border-zinc-200 bg-white p-0.5 text-sm">
             {(['me', 'all'] as const).map((s) => (
               <Link

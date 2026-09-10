@@ -18,6 +18,13 @@ paste and **Run** each file, in order:
    `tasks`, `activity_sessions`, `screenshots`, and the private
    `activity-screenshots` bucket (used by the `desktop/` Python tracker); also
    lets plain members create projects/tasks
+5. [`migrations/0005_superadmin.sql`](migrations/0005_superadmin.sql) —
+   `profiles.is_superadmin` (full cross-org read) + `deactivated_at` (soft
+   disable) + `email` (mirrored from `auth.users`); cross-org RLS grants and
+   deactivated-write blocks
+
+   Grant yourself super admin afterwards:
+   `update public.profiles set is_superadmin = true where email = 'you@example.com';`
 
 Each script is idempotent-ish (`if not exists` / `create or replace` /
 `drop policy if exists` / `add column if not exists`), so re-running is safe.

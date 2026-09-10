@@ -16,9 +16,11 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
     .eq('id', user.id)
     .maybeSingle<Profile>()
 
+  const isSuperadmin = Boolean(profile?.is_superadmin)
+
   return (
     <div className="flex min-h-screen bg-zinc-50">
-      <Sidebar isManager={membership.isManager} />
+      <Sidebar isManager={membership.isManager} isSuperadmin={isSuperadmin} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar
           membership={membership}

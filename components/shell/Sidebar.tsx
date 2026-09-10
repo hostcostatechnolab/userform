@@ -2,12 +2,18 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Clock } from 'lucide-react'
+import { Clock, Shield } from 'lucide-react'
 import { APP_NAME, NAV_ITEMS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { NAV_ICONS } from './nav-icons'
 
-export function Sidebar({ isManager }: { isManager: boolean }) {
+export function Sidebar({
+  isManager,
+  isSuperadmin = false,
+}: {
+  isManager: boolean
+  isSuperadmin?: boolean
+}) {
   const pathname = usePathname()
   const items = NAV_ITEMS.filter((i) => !('managerOnly' in i && i.managerOnly) || isManager)
 
@@ -38,6 +44,21 @@ export function Sidebar({ isManager }: { isManager: boolean }) {
             </Link>
           )
         })}
+
+        {isSuperadmin && (
+          <Link
+            href="/admin"
+            className={cn(
+              'mt-2 flex items-center gap-3 rounded-xl border border-dashed border-indigo-200 px-3 py-2 text-sm font-medium transition-colors',
+              pathname.startsWith('/admin')
+                ? 'bg-indigo-600 text-white'
+                : 'text-indigo-700 hover:bg-indigo-50'
+            )}
+          >
+            <Shield className="h-4 w-4" />
+            Super Admin
+          </Link>
+        )}
       </nav>
     </aside>
   )

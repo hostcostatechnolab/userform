@@ -7,6 +7,7 @@ export type InviteStatus = 'pending' | 'accepted' | 'revoked'
 
 export interface Profile {
   id: string
+  email: string | null
   full_name: string | null
   phone_number: string | null
   bio: string | null
@@ -14,6 +15,8 @@ export interface Profile {
   /** Enrolled 128-d face descriptor, or null if not set up. */
   face_descriptor: number[] | null
   face_photo_path: string | null
+  is_superadmin: boolean
+  deactivated_at: string | null
   created_at: string
   updated_at: string
 }

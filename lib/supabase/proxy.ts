@@ -6,11 +6,15 @@ const PROTECTED_PREFIXES = [
   '/dashboard',
   '/timesheet',
   '/entries',
+  '/attendance',
+  '/monthly',
+  '/activity',
   '/projects',
   '/team',
   '/reports',
   '/settings',
   '/onboarding',
+  '/admin',
 ]
 
 /** Auth pages a logged-in user should be bounced away from. */
@@ -59,6 +63,22 @@ export async function updateSession(request: NextRequest) {
     url.pathname = '/login'
     url.searchParams.set('redirect', pathname)
     return NextResponse.redirect(url)
+  }
+
+  // Soft account deactivation: block disabled users on every gated route.
+  if (user && isProtected) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('deactivated_at')
+      .eq('id', user.id)
+      .maybeSingle<{ deactivated_at: string | null }>()
+
+    if (profile?.deactivated_at && pathname !== '/deactivated') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/deactivated'
+      url.search = ''
+      return NextResponse.redirect(url)
+    }
   }
 
   if (user && AUTH_ROUTES.includes(pathname)) {

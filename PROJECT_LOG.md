@@ -21,6 +21,10 @@ paste and run each file:
 2. [`supabase/migrations/0002_profile_relationships.sql`](supabase/migrations/0002_profile_relationships.sql) — FK fix for profile embeds *(done)*
 3. [`supabase/migrations/0003_face_recognition.sql`](supabase/migrations/0003_face_recognition.sql) — face columns + `attendance-selfies` bucket *(done)*
 4. [`supabase/migrations/0004_tasks_and_activity.sql`](supabase/migrations/0004_tasks_and_activity.sql) — `tasks`, `activity_sessions`, `screenshots` + `activity-screenshots` bucket **(run this)**
+5. [`supabase/migrations/0005_superadmin.sql`](supabase/migrations/0005_superadmin.sql) — `profiles.is_superadmin` / `deactivated_at` / `email`, cross-org RLS grants, deactivated-write blocks **(run this)**
+
+Grant yourself super admin after 0005:
+`update public.profiles set is_superadmin = true where email = 'you@example.com';`
 
 Also, under **Authentication → URL Configuration**: set **Site URL** and add
 `<site>/update-password` to **Redirect URLs** so password-reset links work.
@@ -42,6 +46,41 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable__...
 ---
 
 ## Timeline
+
+### 2026-09-10 — Session 4 — Platform Super Admin + account deactivation
+
+Decisions: **full cross-org read** for super admins · **soft deactivation**
+(`profiles.deactivated_at`, proxy signs them out, RLS refuses writes — no service
+key) · granted **only via SQL** (no UI to promote).
+
+**SQL `0005_superadmin.sql`:**
+- `profiles.is_superadmin` / `deactivated_at` / `email` (email mirrored from
+  `auth.users` via `handle_new_user` + an `on_auth_user_email_change` trigger,
+  backfilled)
+- `public.is_superadmin()` / `public.is_active()` SECURITY DEFINER predicates
+- RLS: `or public.is_superadmin()` added to every table's SELECT policy
+  (profiles, organizations, org_members, invitations, projects, tasks,
+  time_entries, activity_sessions, screenshots) + the two storage read policies;
+  `and public.is_active()` added to the key write policies so a deactivated user
+  with a stale token still can't write
+
+**App:**
+- `lib/queries/org.ts` → `getViewer()` / `requireSuperadmin()`
+- `lib/supabase/proxy.ts` — on gated routes, look up `deactivated_at`; if set,
+  redirect to `/deactivated`. Added `/attendance` `/monthly` `/activity` `/admin`
+  to `PROTECTED_PREFIXES`.
+- `lib/queries/admin.ts` (`getAdminStats`, `listAllOrganizations`,
+  `getOrganizationDetail`, `listAllUsers`) · `lib/actions/admin.ts`
+  (`setUserDeactivatedAction` — superadmin only, can't hit self or another
+  superadmin)
+- `app/admin/` route group with its own layout (`requireSuperadmin`, own
+  `AdminNav`): `/admin` overview + recent orgs, `/admin/organizations` list,
+  `/admin/organizations/[id]` (members + 30-day entries + `ActivityView embedded`
+  for screenshots), `/admin/users` (`UsersTable` — search + Deactivate/Reactivate)
+- `app/deactivated/page.tsx` (public) · Sidebar shows a "Super Admin" link when
+  `profile.is_superadmin`
+- `ActivityView` gained an `embedded` prop (hide header/toggle)
+- `tsc` + `next build` clean (23 routes)
 
 ### 2026-09-08 — Session 3 — Python desktop tracker + screenshots
 
@@ -262,6 +301,12 @@ app/
     monthly/page.tsx         requireManager; ?m=<offset>; monthly heatmap members × day-of-month + CSV
     activity/page.tsx        any member (own) / manager ?scope=all; desktop sessions + screenshot grid
     projects/page.tsx        requireManager; ProjectsManager (projects + per-project tasks)
+app/admin/  (own layout — requireSuperadmin, AdminNav)
+  page.tsx                 stats tiles + recent orgs
+  organizations/page.tsx   all orgs (member/project counts, owner)
+  organizations/[id]/page  one org: members + 30d entries + embedded ActivityView
+  users/page.tsx           all users; UsersTable = search + Deactivate/Reactivate
+app/deactivated/page.tsx   public; where the proxy sends disabled accounts
     team/page.tsx            requireManager; TeamManager
     reports/page.tsx         requireManager; ?from&to&groupBy; ReportsView (Suspense)
     settings/profile/page.tsx
@@ -283,7 +328,9 @@ lib/
     server.ts                async createClient() — await cookies(), getAll/setAll
     proxy.ts                 updateSession(): refresh cookie + redirect rules
   queries/  (server-only reads)
-    org.ts                   requireUser, getMembership, requireMembership, requireManager
+    org.ts                   requireUser, getMembership, requireMembership, requireManager,
+                             getViewer, requireSuperadmin
+    admin.ts                 getAdminStats, listAllOrganizations, getOrganizationDetail, listAllUsers
     time.ts                  getRunningEntry, getEntries({orgId,from,to,userId?,projectId?}), getEntryById
     projects.ts              listProjects(orgId, {includeArchived})
     team.ts                  listMembers, listInvitations, getInvitationByToken
@@ -299,6 +346,7 @@ lib/
     face.ts                  enrollFaceAction, clearFaceAction
     tasks.ts                 createTaskAction, setTaskArchivedAction
     activity.ts              loadSessionScreenshotsAction
+    admin.ts                 setUserDeactivatedAction (superadmin only)
     org.ts                   createOrganization, switchOrganization, invite/revoke, updateMemberRole, removeMember, acceptInvitation
     time.ts                  clockIn/clockOut (now require {photoPath, faceScore}), addManualEntry, updateEntry, deleteEntry
     projects.ts              createProject, updateProject, setProjectArchived
@@ -314,7 +362,8 @@ components/
   attendance/ AttendanceGrid, AttendanceDayDialog (shows in/out selfie thumbnails)
   timesheets/ MonthlyHeatmap (reuses AttendanceDayDialog)
   entries/    EntryList, EntryFormDialog
-  activity/   ActivityView (session cards + lazy screenshot grid)
+  activity/   ActivityView (session cards + lazy screenshot grid; `embedded` prop)
+  admin/      AdminNav, UsersTable
   projects/   ProjectsManager + ProjectCard (per-project task list), ProjectFormDialog
   team/       TeamManager
   reports/    ReportsView
@@ -366,6 +415,12 @@ that day's clock records · Present/Absent/Off (no schedule config).
 enrollment (`/settings/profile`) + mandatory face match on every clock in/out ·
 selfies stored in a private Storage bucket · manager views show in/out thumbnails ·
 match trusted client-side (see Known limitation above).
+
+**Done — Super Admin (Session 4):** platform role (`profiles.is_superadmin`, set
+via SQL only) with cross-org read of every workspace's data; `/admin` area
+(overview, org list, org detail with members + entries + screenshots, user
+directory); soft account **deactivation** (`deactivated_at` → proxy sign-out +
+RLS write-block) toggled from `/admin/users`.
 
 **Done — Desktop tracker + screenshots (Session 3):** `tasks` per project ·
 `/projects` → Projects & Tasks with inline task add/archive · Python CustomTkinter
