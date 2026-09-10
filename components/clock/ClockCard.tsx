@@ -46,7 +46,8 @@ export function ClockCard({
 }: {
   running: TimeEntryDetailed | null
   projects: Project[]
-  faceDescriptor: number[] | null
+  /** Stored profiles.face_descriptor — number[] (legacy) or number[][]. */
+  faceDescriptor: number[] | number[][] | null
   userId: string
   orgId: string
   geofence: GeofenceProp | null
@@ -112,7 +113,9 @@ export function ClockCard({
     )
   }
 
-  async function handleCapture({ blob, distance }: CaptureResult) {
+  async function handleCapture(result: CaptureResult) {
+    if (result.kind !== 'verify') return
+    const { blob, distance } = result
     const coords = coordsRef.current ?? {}
     if (running) {
       const photoPath = await uploadSelfie(blob, { userId, orgId, kind: 'out' })
@@ -294,7 +297,7 @@ export function ClockCard({
         onClose={() => setDialogOpen(false)}
         mode="verify"
         title={running ? 'Verify to clock out' : 'Verify to clock in'}
-        referenceDescriptor={faceDescriptor}
+        reference={faceDescriptor}
         onCapture={handleCapture}
       />
     </>

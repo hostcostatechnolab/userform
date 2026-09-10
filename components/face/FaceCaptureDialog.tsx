@@ -1,48 +1,62 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Camera, Loader2, RefreshCw, ShieldCheck, ShieldAlert } from 'lucide-react'
+import {
+  Camera,
+  Loader2,
+  RefreshCw,
+  ShieldCheck,
+  ShieldAlert,
+  Check,
+} from 'lucide-react'
 import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
 import { Alert } from '@/components/ui/misc'
+import { cn } from '@/lib/utils'
 import {
   loadFaceApi,
   detectSingleDescriptor,
-  descriptorDistance,
+  bestDistance,
+  toSamples,
   isMatch,
   captureJpeg,
   MATCH_THRESHOLD,
+  ENROLL_POSES,
 } from '@/lib/face'
 
 type Phase = 'init' | 'ready' | 'busy' | 'blocked'
 
-export interface CaptureResult {
-  descriptor: number[]
-  blob: Blob
-  /** null in enroll mode; euclidean distance in verify mode */
-  distance: number | null
-}
+export type CaptureResult =
+  | { kind: 'enroll'; descriptors: number[][]; blob: Blob }
+  | { kind: 'verify'; descriptor: number[]; blob: Blob; distance: number | null }
 
 export function FaceCaptureDialog({
   open,
   onClose,
   mode,
   title,
-  referenceDescriptor,
+  reference,
   onCapture,
 }: {
   open: boolean
   onClose: () => void
   mode: 'enroll' | 'verify'
   title: string
-  referenceDescriptor?: number[] | null
+  /** Stored face_descriptor — a single number[] or a number[][]. Verify only. */
+  reference?: unknown
   onCapture: (result: CaptureResult) => Promise<void> | void
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const samplesRef = useRef<number[][]>([])
+  const frontalBlobRef = useRef<Blob | null>(null)
+
   const [phase, setPhase] = useState<Phase>('init')
   const [status, setStatus] = useState('Loading face models…')
   const [error, setError] = useState<string | null>(null)
+  const [step, setStep] = useState(0) // enroll pose index
+
+  const totalSteps = ENROLL_POSES.length
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop())
@@ -53,6 +67,9 @@ export function FaceCaptureDialog({
   useEffect(() => {
     if (!open) return
     let cancelled = false
+    samplesRef.current = []
+    frontalBlobRef.current = null
+    setStep(0)
 
     ;(async () => {
       setPhase('init')
@@ -87,7 +104,7 @@ export function FaceCaptureDialog({
           setError('No camera found on this device.')
         } else {
           setError(
-            e instanceof Error ? e.message : 'Could not start face verification.'
+            e instanceof Error ? e.message : 'Could not start the camera.'
           )
         }
       }
@@ -99,42 +116,74 @@ export function FaceCaptureDialog({
     }
   }, [open, stopCamera])
 
-  async function handleCapture() {
+  async function handleVerify() {
     const video = videoRef.current
-    if (!video || phase === 'busy') return
+    if (!video) return
     setPhase('busy')
     setError(null)
     setStatus('Checking your face…')
-
     try {
-      const { descriptor } = await detectSingleDescriptor(video)
-
-      let distance: number | null = null
-      if (mode === 'verify') {
-        if (!referenceDescriptor || referenceDescriptor.length === 0) {
-          throw new Error('No enrolled face on file. Set up Face ID first.')
-        }
-        distance = descriptorDistance(referenceDescriptor, descriptor)
-        if (!isMatch(distance)) {
-          setPhase('ready')
-          setError(
-            `Face didn't match (score ${distance.toFixed(
-              2
-            )}, needs ≤ ${MATCH_THRESHOLD}). Face the camera in good light and try again.`
-          )
-          return
-        }
+      const samples = toSamples(reference)
+      if (samples.length === 0) {
+        throw new Error('No enrolled face on file. Set up Face ID first.')
       }
-
+      const { descriptor } = await detectSingleDescriptor(video)
+      const distance = bestDistance(samples, descriptor)
+      if (!isMatch(distance)) {
+        setPhase('ready')
+        setError(
+          `Face didn't match (score ${distance.toFixed(
+            2
+          )}, needs ≤ ${MATCH_THRESHOLD}). Face the camera in good light and try again.`
+        )
+        return
+      }
       const blob = await captureJpeg(video)
       setStatus('Saving…')
-      await onCapture({ descriptor, blob, distance })
+      await onCapture({ kind: 'verify', descriptor, blob, distance })
       stopCamera()
     } catch (e) {
       setPhase('ready')
       setError(e instanceof Error ? e.message : 'Capture failed. Try again.')
     }
   }
+
+  async function handleEnrollStep() {
+    const video = videoRef.current
+    if (!video) return
+    setPhase('busy')
+    setError(null)
+    setStatus('Capturing…')
+    try {
+      const { descriptor } = await detectSingleDescriptor(video)
+      samplesRef.current.push(descriptor)
+      if (step === 0) frontalBlobRef.current = await captureJpeg(video)
+
+      const next = step + 1
+      if (next >= totalSteps) {
+        setStatus('Saving…')
+        await onCapture({
+          kind: 'enroll',
+          descriptors: samplesRef.current,
+          blob: frontalBlobRef.current ?? (await captureJpeg(video)),
+        })
+        stopCamera()
+        return
+      }
+      setStep(next)
+      setPhase('ready')
+    } catch (e) {
+      setPhase('ready')
+      setError(
+        e instanceof Error
+          ? e.message
+          : 'Face not detected — hold still and try again.'
+      )
+    }
+  }
+
+  const capture = mode === 'verify' ? handleVerify : handleEnrollStep
+  const pose = ENROLL_POSES[Math.min(step, totalSteps - 1)]
 
   return (
     <Modal
@@ -147,10 +196,36 @@ export function FaceCaptureDialog({
       description={
         mode === 'verify'
           ? 'Look at the camera to confirm it’s you.'
-          : 'We’ll use this to recognise you at clock in.'
+          : 'Capture your face from a few angles so it recognises you reliably.'
       }
     >
       <div className="space-y-4">
+        {mode === 'enroll' && (
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-center text-sm font-semibold text-zinc-900">
+              {pose.label}
+            </p>
+            <div className="flex gap-1.5">
+              {ENROLL_POSES.map((p, i) => (
+                <span
+                  key={p.key}
+                  className={cn(
+                    'flex h-2.5 w-2.5 items-center justify-center rounded-full',
+                    i < step
+                      ? 'bg-emerald-500'
+                      : i === step
+                        ? 'bg-zinc-900'
+                        : 'bg-zinc-200'
+                  )}
+                />
+              ))}
+            </div>
+            <p className="text-xs text-zinc-400">
+              {step} of {totalSteps} captured
+            </p>
+          </div>
+        )}
+
         <div className="relative mx-auto aspect-square w-full max-w-xs overflow-hidden rounded-2xl bg-zinc-900">
           <video
             ref={videoRef}
@@ -200,16 +275,26 @@ export function FaceCaptureDialog({
           ) : (
             <Button
               type="button"
-              onClick={handleCapture}
+              onClick={capture}
               loading={phase === 'busy'}
               disabled={phase !== 'ready'}
             >
               {mode === 'verify' ? (
-                <ShieldCheck className="h-4 w-4" />
+                <>
+                  <ShieldCheck className="h-4 w-4" />
+                  Verify &amp; continue
+                </>
+              ) : step + 1 >= totalSteps ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Capture &amp; finish
+                </>
               ) : (
-                <Camera className="h-4 w-4" />
+                <>
+                  <Camera className="h-4 w-4" />
+                  Capture {step + 1} / {totalSteps}
+                </>
               )}
-              {mode === 'verify' ? 'Verify & continue' : 'Capture'}
             </Button>
           )}
         </div>

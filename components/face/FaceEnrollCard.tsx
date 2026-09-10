@@ -26,9 +26,17 @@ export function FaceEnrollCard({
   const { pending, error, run } = useAction()
   const [open, setOpen] = useState(false)
 
-  async function handleCapture({ descriptor, blob }: CaptureResult) {
-    const photoPath = await uploadSelfie(blob, { userId, orgId, kind: 'enroll' })
-    const res = await enrollFaceAction({ descriptor, photoPath })
+  async function handleCapture(result: CaptureResult) {
+    if (result.kind !== 'enroll') return
+    const photoPath = await uploadSelfie(result.blob, {
+      userId,
+      orgId,
+      kind: 'enroll',
+    })
+    const res = await enrollFaceAction({
+      descriptors: result.descriptors,
+      photoPath,
+    })
     if (res.ok === false) throw new Error(res.error)
     setOpen(false)
     router.refresh()
@@ -46,8 +54,8 @@ export function FaceEnrollCard({
               Face ID for clock in
             </h3>
             <p className="mt-0.5 text-sm text-zinc-500">
-              Required. Your face is checked against this photo every time you
-              clock in or out.
+              Required. You&apos;ll capture your face from a few angles; it&apos;s
+              matched against the closest one every time you clock in or out.
             </p>
           </div>
           {enrolled && (

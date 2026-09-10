@@ -37,7 +37,7 @@ export default async function DashboardPage() {
       .from('profiles')
       .select('face_descriptor')
       .eq('id', user.id)
-      .maybeSingle<{ face_descriptor: number[] | null }>(),
+      .maybeSingle<{ face_descriptor: number[] | number[][] | null }>(),
   ])
 
   const faceDescriptor = profileRes.data?.face_descriptor ?? null

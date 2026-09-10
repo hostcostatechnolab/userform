@@ -8,14 +8,15 @@ import { fail, ok, toMessage, type ActionResult } from './helpers'
 const DESCRIPTOR_LENGTH = 128
 
 const enrollSchema = z.object({
-  descriptor: z
-    .array(z.number().finite())
-    .length(DESCRIPTOR_LENGTH, 'Invalid face data'),
+  descriptors: z
+    .array(z.array(z.number().finite()).length(DESCRIPTOR_LENGTH, 'Invalid face data'))
+    .min(1, 'Capture at least one angle')
+    .max(8),
   photoPath: z.string().min(1),
 })
 
 export async function enrollFaceAction(input: {
-  descriptor: number[]
+  descriptors: number[][]
   photoPath: string
 }): Promise<ActionResult> {
   try {
@@ -36,7 +37,7 @@ export async function enrollFaceAction(input: {
     const { error } = await supabase
       .from('profiles')
       .update({
-        face_descriptor: parsed.data.descriptor,
+        face_descriptor: parsed.data.descriptors,
         face_photo_path: parsed.data.photoPath,
         updated_at: new Date().toISOString(),
       })

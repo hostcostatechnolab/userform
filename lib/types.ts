@@ -12,8 +12,8 @@ export interface Profile {
   phone_number: string | null
   bio: string | null
   avatar_url: string | null
-  /** Enrolled 128-d face descriptor, or null if not set up. */
-  face_descriptor: number[] | null
+  /** Enrolled face — number[][] of 128-d samples (legacy rows may be a bare number[]). */
+  face_descriptor: number[] | number[][] | null
   face_photo_path: string | null
   is_superadmin: boolean
   deactivated_at: string | null

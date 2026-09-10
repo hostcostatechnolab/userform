@@ -51,6 +51,27 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable__...
 
 ## Timeline
 
+### 2026-09-10 — Session 4 (cont.) — Multi-angle face enrollment
+
+Single frontal descriptor felt too strict at clock-in. Enrollment now captures
+5 guided poses (front / left / right / up / down); a punch matches against the
+**closest** sample.
+
+- No SQL — `profiles.face_descriptor` (jsonb) now holds `number[][]` instead of
+  `number[]`. `lib/face/index.ts`: `ENROLL_POSES`, `toSamples()` (normalises a
+  legacy bare `number[]` to `[number[]]`), `bestDistance(samples, probe)` (min
+  euclidean). Threshold unchanged (0.5).
+- `FaceCaptureDialog` reworked: `mode='enroll'` steps through the poses with a
+  progress dot row and per-pose instruction; `CaptureResult` is now a
+  `{kind:'enroll', descriptors}` | `{kind:'verify', descriptor, distance}` union.
+  Verify prop renamed `referenceDescriptor` → `reference` (takes the raw stored
+  value, single or multi).
+- `enrollFaceAction` takes `descriptors: number[][]` (1–8 × 128). `ClockCard` /
+  `FaceEnrollCard` updated for the union. `Profile.face_descriptor` +
+  dashboard select widened to `number[] | number[][] | null`.
+- Existing single-sample enrollments keep working; re-enrolling upgrades them.
+- `tsc` + `next build` clean (24 routes).
+
 ### 2026-09-10 — Session 4 (cont.) — Geofenced clock in / out
 
 Decisions: **one geofence per org**, **hard block**, **Leaflet + OpenStreetMap**
@@ -393,7 +414,7 @@ lib/
   utils.ts                   cn(), initials()
   action-result.ts           ActionResult<T>, ok(), fail(), toMessage()  (client-safe)
   face/
-    index.ts                 loadFaceApi(), detectSingleDescriptor(), descriptorDistance(), isMatch(), captureJpeg()
+    index.ts                 loadFaceApi(), detectSingleDescriptor(), descriptorDistance(), bestDistance(), toSamples(), isMatch(), captureJpeg(), ENROLL_POSES
     upload.ts                uploadSelfie(blob, {userId, orgId, kind}) → object path
   supabase/
     client.ts                createBrowserClient
@@ -483,10 +504,11 @@ reports (group by member/project/day) + CSV export.
 nav, per-member + team totals, CSV export) · click any cell to add/edit/delete
 that day's clock records · Present/Absent/Off (no schedule config).
 
-**Done — Face recognition (Session 2):** `@vladmandic/face-api` in-browser
-enrollment (`/settings/profile`) + mandatory face match on every clock in/out ·
-selfies stored in a private Storage bucket · manager views show in/out thumbnails ·
-match trusted client-side (see Known limitation above).
+**Done — Face recognition (Session 2, extended Session 4):** `@vladmandic/face-api`
+in-browser enrollment (`/settings/profile`) — **5 guided angles**, punch matches
+the closest sample — + mandatory face match on every clock in/out · selfies in a
+private Storage bucket · manager views show in/out thumbnails · match trusted
+client-side (see Known limitation above).
 
 **Done — Geofenced clock (Session 4):** one location per org
 (`/settings/workspace`, Leaflet map + radius); web clock in/out **hard-blocked**

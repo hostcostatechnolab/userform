@@ -14,6 +14,32 @@ export const MATCH_THRESHOLD = Number(
 
 export const DESCRIPTOR_LENGTH = 128
 
+/** Guided enrollment poses — one descriptor captured per pose. */
+export const ENROLL_POSES = [
+  { key: 'front', label: 'Look straight at the camera' },
+  { key: 'left', label: 'Turn your head slightly to the left' },
+  { key: 'right', label: 'Turn your head slightly to the right' },
+  { key: 'up', label: 'Tilt your head up a little' },
+  { key: 'down', label: 'Tilt your head down a little' },
+] as const
+
+/** Accepts a legacy single descriptor or a multi-sample array; returns samples. */
+export function toSamples(stored: unknown): number[][] {
+  if (!Array.isArray(stored) || stored.length === 0) return []
+  if (Array.isArray(stored[0])) return stored as number[][]
+  return [stored as number[]]
+}
+
+/** Smallest euclidean distance from `probe` to any enrolled sample. */
+export function bestDistance(samples: number[][], probe: number[]): number {
+  let best = Infinity
+  for (const s of samples) {
+    const d = descriptorDistance(s, probe)
+    if (d < best) best = d
+  }
+  return best
+}
+
 let faceapi: typeof FaceApi | null = null
 let loadPromise: Promise<typeof FaceApi> | null = null
 
