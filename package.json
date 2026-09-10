@@ -3,15 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/copy-face-models.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/copy-face-models.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "copy-models": "node scripts/copy-face-models.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.112.4",
+    "@vladmandic/face-api": "^1.7.15",
     "lucide-react": "^1.34.0",
     "next": "16.3.3",
     "react": "19.2.8",
